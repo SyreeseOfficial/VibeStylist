@@ -28,16 +28,32 @@ Instructions:
 `;
 
     // Format history for Gemini API (user/model roles)
-    // Assuming chatHistory is array of { role: 'user' | 'model', text: string }
     const contents = [
         {
             role: "user",
             parts: [{ text: systemPrompt }]
         },
-        ...chatHistory.map(msg => ({
-            role: msg.role === 'ai' ? 'model' : 'user', // Map local roles to API roles if needed
-            parts: [{ text: msg.text }]
-        }))
+        ...chatHistory.map(msg => {
+            const parts = [{ text: msg.text }];
+
+            if (msg.image) {
+                // msg.image is expected to be a Base64 string like "data:image/jpeg;base64,..."
+                const [header, data] = msg.image.split(',');
+                const mimeType = header.match(/:(.*?);/)[1];
+
+                parts.push({
+                    inline_data: {
+                        mime_type: mimeType,
+                        data: data
+                    }
+                });
+            }
+
+            return {
+                role: msg.sender === 'ai' ? 'model' : 'user',
+                parts: parts
+            };
+        })
     ];
 
     try {

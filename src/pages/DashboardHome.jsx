@@ -1,9 +1,10 @@
 import React from 'react';
+import ChatInterface from '../components/ChatInterface';
 
 const DashboardHome = () => {
     return (
-        <div className="flex-1 p-6 flex items-center justify-center text-gray-500">
-            <p>Chat Interface Placeholder</p>
+        <div className="flex-1 p-4 h-full">
+            <ChatInterface />
         </div>
     );
 };
