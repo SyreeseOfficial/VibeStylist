@@ -5,7 +5,7 @@ import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDo
 const InventoryGrid = () => {
     const { inventory, setInventory, updateItem } = useVibe();
     const [editingId, setEditingId] = useState(null);
-    const [editForm, setEditForm] = useState({ name: '', category: '' });
+    const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
 
     // Filter & Sort State
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +26,7 @@ const InventoryGrid = () => {
 
     const handleEditClick = (item) => {
         setEditingId(item.id);
-        setEditForm({ name: item.name, category: item.category });
+        setEditForm({ name: item.name, category: item.category, price: item.price || '' });
     };
 
     const handleSave = (id) => {
@@ -156,16 +156,25 @@ const InventoryGrid = () => {
                                         placeholder="Item Name"
                                         autoFocus
                                     />
-                                    <select
-                                        value={editForm.category}
-                                        onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                                        className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
-                                    >
-                                        <option value="Top">Top</option>
-                                        <option value="Bottom">Bottom</option>
-                                        <option value="Shoes">Shoes</option>
-                                        <option value="Accessory">Accessory</option>
-                                    </select>
+                                    <div className="flex gap-2">
+                                        <select
+                                            value={editForm.category}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                                            className="w-1/2 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                        >
+                                            <option value="Top">Top</option>
+                                            <option value="Bottom">Bottom</option>
+                                            <option value="Shoes">Shoes</option>
+                                            <option value="Accessory">Accessory</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            value={editForm.price}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, price: e.target.value }))}
+                                            placeholder="Price $"
+                                            className="w-1/2 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                        />
+                                    </div>
                                     <div className="flex gap-2 mt-2">
                                         <button
                                             onClick={() => handleSave(item.id)}
@@ -201,6 +210,30 @@ const InventoryGrid = () => {
                                             <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 text-yellow-400 font-medium font-mono-system shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-pulse">Legendary</span>
                                         )}
                                     </div>
+
+                                    {/* Cost Per Wear */}
+                                    {item.price > 0 && (
+                                        <div className="mt-2 text-xs font-mono-system">
+                                            {(() => {
+                                                const wears = item.wearCount || 0;
+                                                const cpw = item.price / (wears === 0 ? 1 : wears); // Avoid /0, assume 1 wear effectively for first calc, or just show full price if 0 wears usually.
+                                                // Actually if 0 wears, you paid full price for 0 utility. 
+                                                // Let's stick to simple: if 0 wears, use 1 to show price, or just display price.
+                                                // Prompt said: "display 'Cost Per Wear' (Price / Wear Count)"
+                                                const displayCpw = wears === 0 ? parseFloat(item.price) : cpw;
+
+                                                let cpwColor = 'text-slate-400';
+                                                if (displayCpw < 1) cpwColor = 'text-green-400';
+                                                if (displayCpw > 10) cpwColor = 'text-red-400';
+
+                                                return (
+                                                    <span className={cpwColor}>
+                                                        ${displayCpw.toFixed(2)} / wear
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
 
                                     <div className="mt-3 flex items-center gap-2">
                                         <button

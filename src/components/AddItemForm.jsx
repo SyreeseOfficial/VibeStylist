@@ -7,6 +7,7 @@ const AddItemForm = () => {
     const [formData, setFormData] = useState({
         name: '',
         category: 'Top',
+        price: '',
         isClean: true
     });
     const [showSuccess, setShowSuccess] = useState(false);
@@ -24,7 +25,7 @@ const AddItemForm = () => {
         setInventory(prev => [...prev, newItem]);
 
         // Reset form and show success
-        setFormData({ name: '', category: 'Top', isClean: true });
+        setFormData({ name: '', category: 'Top', price: '', isClean: true });
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 2000);
     };
@@ -46,6 +47,20 @@ const AddItemForm = () => {
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Navy Blue Blazer"
                         required
+                        className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition"
+                    />
+                </div>
+
+                {/* Price */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Purchase Price ($)</label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        placeholder="0.00"
                         className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition"
                     />
                 </div>
