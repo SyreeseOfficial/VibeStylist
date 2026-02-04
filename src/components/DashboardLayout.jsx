@@ -31,15 +31,15 @@ const DashboardLayout = () => {
                 </nav>
 
                 <div className="mt-auto pt-4 border-t border-gray-800">
-                    <div className="flex items-center gap-3 px-2">
+                    <Link to="/onboarding" className="flex items-center gap-3 px-2 hover:bg-gray-800 rounded-xl py-2 transition cursor-pointer">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center">
                             <User size={16} />
                         </div>
                         <div className="text-sm">
-                            <p className="font-medium text-gray-200">User Profile</p>
+                            <p className="font-medium text-gray-200">{userProfile?.name || 'User Profile'}</p>
                             <p className="text-xs text-gray-500">Free Plan</p>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </aside>
 
