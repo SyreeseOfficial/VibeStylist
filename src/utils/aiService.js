@@ -27,11 +27,25 @@ Instructions:
 4. Keep the tone helpful, stylish, and concise.
 `;
 
+    // Check if the latest message has an image to trigger "Critique Mode"
+    const lastMsg = chatHistory[chatHistory.length - 1];
+    let finalSystemPrompt = systemPrompt;
+
+    if (lastMsg && lastMsg.image) {
+        finalSystemPrompt += `
+\n*** OUTFIT CRITIQUE MODE ACTIVATED ***
+The user has provided an image. Ignore standard inventory suggestions if they are asking about the image.
+Analyze this outfit image explicitly.
+Critique the fit, color coordination, and silhouette based on the user's style goals.
+Give a rating out of 10.
+`;
+    }
+
     // Format history for Gemini API (user/model roles)
     const contents = [
         {
             role: "user",
-            parts: [{ text: systemPrompt }]
+            parts: [{ text: finalSystemPrompt }]
         },
         ...chatHistory.map(msg => {
             const parts = [{ text: msg.text }];

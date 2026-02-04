@@ -17,7 +17,12 @@ export const VibeProvider = ({ children }) => {
     };
 
     // Initialize state from localStorage or defaults
-    const [userProfile, setUserProfile] = useState(() => loadState('userProfile', {}));
+    const [userProfile, setUserProfile] = useState(() => {
+        const profile = loadState('userProfile', {});
+        // Ensure xp exists
+        if (profile.xp === undefined) profile.xp = 0;
+        return profile;
+    });
     const [inventory, setInventory] = useState(() => loadState('inventory', []));
     const [outfitLogs, setOutfitLogs] = useState(() => loadState('outfitLogs', []));
     const [apiKey, setApiKey] = useState(() => loadState('apiKey', ''));
@@ -39,12 +44,30 @@ export const VibeProvider = ({ children }) => {
         localStorage.setItem('apiKey', JSON.stringify(apiKey));
     }, [apiKey]);
 
+    const logOutfit = (itemIds = []) => {
+        // Award XP
+        setUserProfile(prev => ({
+            ...prev,
+            xp: (prev.xp || 0) + 100
+        }));
+
+        // Increment wear count for items
+        if (itemIds.length > 0) {
+            setInventory(prev => prev.map(item => {
+                if (itemIds.includes(item.id)) {
+                    return { ...item, wearCount: (item.wearCount || 0) + 1 };
+                }
+                return item;
+            }));
+        }
+    };
+
     const clearData = () => {
         localStorage.removeItem('userProfile');
         localStorage.removeItem('inventory');
         localStorage.removeItem('outfitLogs');
         localStorage.removeItem('apiKey');
-        setUserProfile({});
+        setUserProfile({ xp: 0 });
         setInventory([]);
         setOutfitLogs([]);
         setApiKey('');
@@ -59,6 +82,7 @@ export const VibeProvider = ({ children }) => {
         setOutfitLogs,
         apiKey,
         setApiKey,
+        logOutfit,
         clearData
     };
 

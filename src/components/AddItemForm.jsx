@@ -17,6 +17,7 @@ const AddItemForm = () => {
         const newItem = {
             id: Date.now().toString(),
             ...formData,
+            wearCount: 0,
             dateAdded: new Date().toISOString()
         };
 

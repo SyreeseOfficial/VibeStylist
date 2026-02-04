@@ -31,15 +31,35 @@ const DashboardLayout = () => {
                 </nav>
 
                 <div className="mt-auto pt-4 border-t border-gray-800">
-                    <Link to="/onboarding" className="flex items-center gap-3 px-2 hover:bg-gray-800 rounded-xl py-2 transition cursor-pointer">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center">
-                            <User size={16} />
+                    <Link to="/onboarding" className="flex items-center gap-3 px-2 hover:bg-gray-800 rounded-xl py-2 transition cursor-pointer mb-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center shrink-0">
+                            <span className="font-bold text-white shadow-sm">{userProfile?.name ? userProfile.name[0] : 'U'}</span>
                         </div>
-                        <div className="text-sm">
-                            <p className="font-medium text-gray-200">{userProfile?.name || 'User Profile'}</p>
-                            <p className="text-xs text-gray-500">Free Plan</p>
+                        <div className="text-sm min-w-0">
+                            <p className="font-medium text-gray-200 truncate">{userProfile?.name || 'User Profile'}</p>
+                            <p className="text-xs text-purple-400 font-semibold">Level {Math.floor((userProfile?.xp || 0) / 1000) + 1} Stylist</p>
                         </div>
                     </Link>
+
+                    {/* XP Logic using inline calculation for display */}
+                    {(() => {
+                        const xp = userProfile?.xp || 0;
+                        const progress = (xp % 1000) / 10;
+                        return (
+                            <div className="px-2">
+                                <div className="flex justify-between text-[10px] text-gray-500 mb-1 uppercase tracking-wider font-semibold">
+                                    <span>XP</span>
+                                    <span>{Math.floor(xp % 1000)} / 1000</span>
+                                </div>
+                                <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500 ease-out"
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             </aside>
 
