@@ -7,9 +7,12 @@ const GachaBox = () => {
     const [isShaking, setIsShaking] = useState(false);
     const [result, setResult] = useState(null);
 
+    const [errorMsg, setErrorMsg] = useState(null);
+
     const handleSpin = () => {
         setIsShaking(true);
         setResult(null);
+        setErrorMsg(null);
 
         setTimeout(() => {
             const cleanItems = inventory.filter(i => i.isClean);
@@ -18,14 +21,22 @@ const GachaBox = () => {
             const bottoms = cleanItems.filter(i => i.category === 'Bottom');
             const shoes = cleanItems.filter(i => i.category === 'Shoes');
 
-            if (tops.length && bottoms.length && shoes.length) {
-                const randomTop = tops[Math.floor(Math.random() * tops.length)];
-                const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
-                const randomShoe = shoes[Math.floor(Math.random() * shoes.length)];
+            if (!tops.length || !bottoms.length || !shoes.length) {
+                let missing = [];
+                if (!tops.length) missing.push("tops");
+                if (!bottoms.length) missing.push("bottoms");
+                if (!shoes.length) missing.push("shoes");
 
-                setResult({ top: randomTop, bottom: randomBottom, shoes: randomShoe });
+                setErrorMsg(`Laundry Day! No clean ${missing.join(", ")} available.`);
+                setIsShaking(false);
+                return;
             }
 
+            const randomTop = tops[Math.floor(Math.random() * tops.length)];
+            const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
+            const randomShoe = shoes[Math.floor(Math.random() * shoes.length)];
+
+            setResult({ top: randomTop, bottom: randomBottom, shoes: randomShoe });
             setIsShaking(false);
         }, 800);
     };
@@ -94,10 +105,16 @@ const GachaBox = () => {
                 </div>
             )}
 
-            {!result && !isShaking && (
-                <p className="text-xs text-gray-500 text-center mt-3 italic">
+            {!result && !isShaking && !errorMsg && (
+                <p className="text-xs text-slate-500 text-center mt-3 italic">
                     Feeling lucky? Let fate decide your fit.
                 </p>
+            )}
+
+            {errorMsg && (
+                <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg text-center animate-in fade-in zoom-in duration-300">
+                    <p className="text-sm text-red-400 font-medium">{errorMsg}</p>
+                </div>
             )}
         </div>
     );
