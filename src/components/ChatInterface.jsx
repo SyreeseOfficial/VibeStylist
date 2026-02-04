@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Sparkles } from 'lucide-react';
+import { Send, User, Sparkles, Trash2 } from 'lucide-react';
 import { useVibe } from '../context/VibeContext';
 import { generateStyleAdvice } from '../utils/aiService';
 
@@ -90,6 +90,27 @@ const ChatInterface = () => {
 
     return (
         <div className="flex flex-col h-full bg-gray-900 rounded-xl overflow-hidden shadow-inner md:border border-gray-800">
+            {/* Header */}
+            <div className="p-3 border-b border-gray-800 flex justify-between items-center bg-gray-800/30">
+                <div className="flex items-center gap-2">
+                    <Sparkles size={18} className="text-purple-400" />
+                    <span className="font-semibold text-gray-200">AI Stylist</span>
+                </div>
+                {chatMessages.length > 0 && (
+                    <button
+                        onClick={() => {
+                            if (confirm('Clear chat history? This will end the current session.')) {
+                                setChatMessages([]);
+                            }
+                        }}
+                        className="text-xs flex items-center gap-1 text-gray-400 hover:text-red-400 transition px-2 py-1 rounded hover:bg-gray-800"
+                        title="Clear Chat & End Session"
+                    >
+                        <Trash2 size={14} /> Clear
+                    </button>
+                )}
+            </div>
+
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {chatMessages.map((msg, index) => (
