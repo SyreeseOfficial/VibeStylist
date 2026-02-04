@@ -2,6 +2,7 @@ import React from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
+import GachaBox from './GachaBox';
 
 const DashboardLayout = () => {
     const { userProfile } = useVibe();
@@ -69,9 +70,11 @@ const DashboardLayout = () => {
             </main>
 
             {/* Context Panel (30%) */}
-            <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30">
+            <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto">
                 <h2 className="text-lg font-semibold mb-4 text-gray-200">Context</h2>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                    <GachaBox />
+
                     <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Current Vibe</h3>
                         <p className="text-gray-200">Casual Chic</p>
