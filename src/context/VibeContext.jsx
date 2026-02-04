@@ -104,6 +104,12 @@ export const VibeProvider = ({ children }) => {
         }
     };
 
+    const updateItem = (id, updates) => {
+        setInventory(prev => prev.map(item =>
+            item.id === id ? { ...item, ...updates } : item
+        ));
+    };
+
     const completeQuest = () => {
         if (!dailyQuest.isCompleted) {
             setDailyQuest(prev => ({ ...prev, isCompleted: true }));
@@ -142,6 +148,7 @@ export const VibeProvider = ({ children }) => {
         chatMessages,
         setChatMessages,
         logOutfit,
+        updateItem,
         clearData
     };
 
