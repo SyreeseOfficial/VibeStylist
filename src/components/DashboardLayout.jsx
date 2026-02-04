@@ -3,6 +3,7 @@ import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
 import GachaBox from './GachaBox';
+import QuestWidget from './QuestWidget';
 
 const DashboardLayout = () => {
     const { userProfile } = useVibe();
@@ -73,6 +74,7 @@ const DashboardLayout = () => {
             <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto">
                 <h2 className="text-lg font-semibold mb-4 text-gray-200">Context</h2>
                 <div className="space-y-6">
+                    <QuestWidget />
                     <GachaBox />
 
                     <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">

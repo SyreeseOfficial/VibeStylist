@@ -27,6 +27,37 @@ export const VibeProvider = ({ children }) => {
     const [outfitLogs, setOutfitLogs] = useState(() => loadState('outfitLogs', []));
     const [apiKey, setApiKey] = useState(() => loadState('apiKey', ''));
 
+    // Daily Quest State
+    const [dailyQuest, setDailyQuest] = useState(() => loadState('dailyQuest', {
+        text: "Wear a blue item today",
+        isCompleted: false,
+        date: new Date().toDateString()
+    }));
+
+    // Daily Quest Logic: Rotate if date changed
+    useEffect(() => {
+        const today = new Date().toDateString();
+        if (dailyQuest.date !== today) {
+            const quests = [
+                "Wear a blue item today",
+                "Try a monochrome fit",
+                "Wear your oldest item",
+                "Style a formal piece casually",
+                "Wear something green",
+                "Create a layered outfit",
+                "Wear your newest item"
+            ];
+            const randomQuest = quests[Math.floor(Math.random() * quests.length)];
+
+            const newQuest = {
+                text: randomQuest,
+                isCompleted: false,
+                date: today
+            };
+            setDailyQuest(newQuest);
+        }
+    }, [dailyQuest.date]); // Check on mount/update if date matches
+
     // Persist functionality
     useEffect(() => {
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
@@ -43,6 +74,10 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('apiKey', JSON.stringify(apiKey));
     }, [apiKey]);
+
+    useEffect(() => {
+        localStorage.setItem('dailyQuest', JSON.stringify(dailyQuest));
+    }, [dailyQuest]);
 
     const logOutfit = (itemIds = []) => {
         // Award XP
@@ -62,15 +97,28 @@ export const VibeProvider = ({ children }) => {
         }
     };
 
+    const completeQuest = () => {
+        if (!dailyQuest.isCompleted) {
+            setDailyQuest(prev => ({ ...prev, isCompleted: true }));
+            setUserProfile(prev => ({ ...prev, xp: (prev.xp || 0) + 150 }));
+        }
+    };
+
     const clearData = () => {
         localStorage.removeItem('userProfile');
         localStorage.removeItem('inventory');
         localStorage.removeItem('outfitLogs');
         localStorage.removeItem('apiKey');
+        localStorage.removeItem('dailyQuest');
         setUserProfile({ xp: 0 });
         setInventory([]);
         setOutfitLogs([]);
         setApiKey('');
+        setDailyQuest({
+            text: "Wear a blue item today",
+            isCompleted: false,
+            date: new Date().toDateString()
+        });
     };
 
     const value = {
@@ -82,6 +130,8 @@ export const VibeProvider = ({ children }) => {
         setOutfitLogs,
         apiKey,
         setApiKey,
+        dailyQuest,
+        completeQuest,
         logOutfit,
         clearData
     };
