@@ -1,6 +1,6 @@
 import React from 'react';
 import { useVibe } from '../context/VibeContext';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -45,9 +45,7 @@ const DashboardLayout = () => {
 
             {/* Main Stage (50%) */}
             <main className="w-[50%] flex flex-col relative bg-gray-900/50">
-                <div className="flex-1 p-6 flex items-center justify-center text-gray-500">
-                    <p>Chat Interface Placeholder</p>
-                </div>
+                <Outlet />
             </main>
 
             {/* Context Panel (30%) */}

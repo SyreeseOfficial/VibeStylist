@@ -17,6 +17,11 @@ const RequireProfile = ({ children }) => {
   return children;
 };
 
+import DashboardHome from './pages/DashboardHome';
+import InventoryPage from './pages/InventoryPage';
+
+// ... (RequireProfile remains same)
+
 function App() {
   return (
     <BrowserRouter>
@@ -26,7 +31,10 @@ function App() {
             <RequireProfile>
               <DashboardLayout />
             </RequireProfile>
-          } />
+          }>
+            <Route index element={<DashboardHome />} />
+            <Route path="inventory" element={<InventoryPage />} />
+          </Route>
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/onboarding" element={<Onboarding />} />
         </Routes>
