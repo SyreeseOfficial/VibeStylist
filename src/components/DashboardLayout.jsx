@@ -2,8 +2,7 @@ import React from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
-import GachaBox from './GachaBox';
-import QuestWidget from './QuestWidget';
+import ContextPanel from './ContextPanel';
 
 const DashboardLayout = () => {
     const { userProfile } = useVibe();
@@ -39,7 +38,7 @@ const DashboardLayout = () => {
                         </div>
                         <div className="text-sm min-w-0">
                             <p className="font-medium text-gray-200 truncate">{userProfile?.name || 'User Profile'}</p>
-                            <p className="text-xs text-purple-400 font-semibold">Level {Math.floor((userProfile?.xp || 0) / 1000) + 1} Stylist</p>
+                            <p className="text-xs text-purple-400 font-semibold font-mono-system">Level {Math.floor((userProfile?.xp || 0) / 1000) + 1} Stylist</p>
                         </div>
                     </Link>
 
@@ -49,7 +48,7 @@ const DashboardLayout = () => {
                         const progress = (xp % 1000) / 10;
                         return (
                             <div className="px-2">
-                                <div className="flex justify-between text-[10px] text-gray-500 mb-1 uppercase tracking-wider font-semibold">
+                                <div className="flex justify-between text-[10px] text-gray-400 mb-1 uppercase tracking-wider font-semibold font-mono-system">
                                     <span>XP</span>
                                     <span>{Math.floor(xp % 1000)} / 1000</span>
                                 </div>
@@ -71,18 +70,7 @@ const DashboardLayout = () => {
             </main>
 
             {/* Context Panel (30%) */}
-            <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto">
-                <h2 className="text-lg font-semibold mb-4 text-gray-200">Context</h2>
-                <div className="space-y-6">
-                    <QuestWidget />
-                    <GachaBox />
-
-                    <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">
-                        <h3 className="text-sm font-medium text-gray-400 mb-1">Current Vibe</h3>
-                        <p className="text-gray-200">Casual Chic</p>
-                    </div>
-                </div>
-            </aside>
+            <ContextPanel />
         </div>
     );
 };

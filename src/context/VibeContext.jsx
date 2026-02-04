@@ -34,6 +34,9 @@ export const VibeProvider = ({ children }) => {
         date: new Date().toDateString()
     }));
 
+    // Chat State (Moved from ChatInterface)
+    const [chatMessages, setChatMessages] = useState(() => loadState('chatMessages', []));
+
     // Daily Quest Logic: Rotate if date changed
     useEffect(() => {
         const today = new Date().toDateString();
@@ -78,6 +81,10 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('dailyQuest', JSON.stringify(dailyQuest));
     }, [dailyQuest]);
+
+    useEffect(() => {
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+    }, [chatMessages]);
 
     const logOutfit = (itemIds = []) => {
         // Award XP
@@ -132,6 +139,8 @@ export const VibeProvider = ({ children }) => {
         setApiKey,
         dailyQuest,
         completeQuest,
+        chatMessages,
+        setChatMessages,
         logOutfit,
         clearData
     };

@@ -30,7 +30,11 @@ const InventoryGrid = () => {
             {inventory.map((item) => (
                 <div
                     key={item.id}
-                    className={`bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-start transition-all duration-300 ${!item.isClean ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'}`}
+                    className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-start transition-all duration-300 relative group overflow-hidden ${!item.isClean ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'
+                        } ${item.wearCount >= 50
+                            ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]'
+                            : 'border-gray-700'
+                        }`}
                 >
                     <div>
                         <h3 className="font-medium text-white">{item.name}</h3>
@@ -40,13 +44,13 @@ const InventoryGrid = () => {
                             </span>
                             {/* Wear Count Badges */}
                             {(!item.wearCount || item.wearCount < 5) && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-blue-500/30 text-blue-400">New</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-blue-500/30 text-blue-400 font-mono-system">New</span>
                             )}
                             {item.wearCount >= 20 && item.wearCount < 50 && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 text-purple-400">Broken In</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 text-purple-400 font-mono-system">Broken In</span>
                             )}
                             {item.wearCount >= 50 && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500/30 text-yellow-400 font-medium">Legendary</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 text-yellow-400 font-medium font-mono-system shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-pulse">Legendary</span>
                             )}
                         </div>
 
