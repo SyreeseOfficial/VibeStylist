@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
-import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown, Calendar } from 'lucide-react';
+import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown } from 'lucide-react';
 
 const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => {
-    const { inventory, setInventory, updateItem, logOutfit } = useVibe();
+    const { inventory, setInventory, updateItem } = useVibe();
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
 

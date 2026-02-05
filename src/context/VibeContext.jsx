@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import { DAILY_QUESTS, XP_REWARDS, LOCAL_STORAGE_KEYS } from '../utils/constants';
 
 const VibeContext = createContext();
 
@@ -18,40 +19,31 @@ export const VibeProvider = ({ children }) => {
 
     // Initialize state from localStorage or defaults
     const [userProfile, setUserProfile] = useState(() => {
-        const profile = loadState('userProfile', {});
+        const profile = loadState(LOCAL_STORAGE_KEYS.USER_PROFILE, {});
         // Ensure xp exists
         if (profile.xp === undefined) profile.xp = 0;
         return profile;
     });
-    const [inventory, setInventory] = useState(() => loadState('inventory', []));
-    const [outfitLogs, setOutfitLogs] = useState(() => loadState('outfitLogs', []));
-    const [apiKey, setApiKey] = useState(() => loadState('apiKey', ''));
-    const [location, setLocation] = useState(() => loadState('location', ''));
+    const [inventory, setInventory] = useState(() => loadState(LOCAL_STORAGE_KEYS.INVENTORY, []));
+    const [outfitLogs, setOutfitLogs] = useState(() => loadState(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, []));
+    const [apiKey, setApiKey] = useState(() => loadState(LOCAL_STORAGE_KEYS.API_KEY, ''));
+    const [location, setLocation] = useState(() => loadState(LOCAL_STORAGE_KEYS.LOCATION, ''));
 
     // Daily Quest State
-    const [dailyQuest, setDailyQuest] = useState(() => loadState('dailyQuest', {
-        text: "Wear a blue item today",
+    const [dailyQuest, setDailyQuest] = useState(() => loadState(LOCAL_STORAGE_KEYS.DAILY_QUEST, {
+        text: DAILY_QUESTS[0],
         isCompleted: false,
         date: new Date().toDateString()
     }));
 
-    // Chat State (Moved from ChatInterface)
-    const [chatMessages, setChatMessages] = useState(() => loadState('chatMessages', []));
+    // Chat State
+    const [chatMessages, setChatMessages] = useState(() => loadState(LOCAL_STORAGE_KEYS.CHAT_MESSAGES, []));
 
     // Daily Quest Logic: Rotate if date changed
     useEffect(() => {
         const today = new Date().toDateString();
         if (dailyQuest.date !== today) {
-            const quests = [
-                "Wear a blue item today",
-                "Try a monochrome fit",
-                "Wear your oldest item",
-                "Style a formal piece casually",
-                "Wear something green",
-                "Create a layered outfit",
-                "Wear your newest item"
-            ];
-            const randomQuest = quests[Math.floor(Math.random() * quests.length)];
+            const randomQuest = DAILY_QUESTS[Math.floor(Math.random() * DAILY_QUESTS.length)];
 
             const newQuest = {
                 text: randomQuest,
@@ -64,38 +56,38 @@ export const VibeProvider = ({ children }) => {
 
     // Persist functionality
     useEffect(() => {
-        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.USER_PROFILE, JSON.stringify(userProfile));
     }, [userProfile]);
 
     useEffect(() => {
-        localStorage.setItem('inventory', JSON.stringify(inventory));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.INVENTORY, JSON.stringify(inventory));
     }, [inventory]);
 
     useEffect(() => {
-        localStorage.setItem('outfitLogs', JSON.stringify(outfitLogs));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, JSON.stringify(outfitLogs));
     }, [outfitLogs]);
 
     useEffect(() => {
-        localStorage.setItem('apiKey', JSON.stringify(apiKey));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.API_KEY, JSON.stringify(apiKey));
     }, [apiKey]);
 
     useEffect(() => {
-        localStorage.setItem('location', JSON.stringify(location));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.LOCATION, JSON.stringify(location));
     }, [location]);
 
     useEffect(() => {
-        localStorage.setItem('dailyQuest', JSON.stringify(dailyQuest));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.DAILY_QUEST, JSON.stringify(dailyQuest));
     }, [dailyQuest]);
 
     useEffect(() => {
-        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(chatMessages));
     }, [chatMessages]);
 
-    const logOutfit = (itemIds = []) => {
+    const logOutfit = useCallback((itemIds = []) => {
         // Award XP
         setUserProfile(prev => ({
             ...prev,
-            xp: (prev.xp || 0) + 100
+            xp: (prev.xp || 0) + XP_REWARDS.LOG_OUTFIT
         }));
 
         // Create Log Entry
@@ -118,39 +110,39 @@ export const VibeProvider = ({ children }) => {
                 return item;
             }));
         }
-    };
+    }, [inventory, dailyQuest]);
 
-    const updateItem = (id, updates) => {
+    const updateItem = useCallback((id, updates) => {
         setInventory(prev => prev.map(item =>
             item.id === id ? { ...item, ...updates } : item
         ));
-    };
+    }, []);
 
-    const completeQuest = () => {
+    const completeQuest = useCallback(() => {
         if (!dailyQuest.isCompleted) {
             setDailyQuest(prev => ({ ...prev, isCompleted: true }));
-            setUserProfile(prev => ({ ...prev, xp: (prev.xp || 0) + 150 }));
+            setUserProfile(prev => ({ ...prev, xp: (prev.xp || 0) + XP_REWARDS.COMPLETE_QUEST }));
         }
-    };
+    }, [dailyQuest.isCompleted]);
 
-    const clearData = () => {
-        localStorage.removeItem('userProfile');
-        localStorage.removeItem('inventory');
-        localStorage.removeItem('outfitLogs');
-        localStorage.removeItem('apiKey');
-        localStorage.removeItem('dailyQuest');
+    const clearData = useCallback(() => {
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.USER_PROFILE);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.INVENTORY);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.OUTFIT_LOGS);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.API_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.DAILY_QUEST);
         setUserProfile({ xp: 0 });
         setInventory([]);
         setOutfitLogs([]);
         setApiKey('');
         setDailyQuest({
-            text: "Wear a blue item today",
+            text: DAILY_QUESTS[0],
             isCompleted: false,
             date: new Date().toDateString()
         });
-    };
+    }, []);
 
-    const value = {
+    const value = useMemo(() => ({
         userProfile,
         setUserProfile,
         inventory,
@@ -168,7 +160,19 @@ export const VibeProvider = ({ children }) => {
         logOutfit,
         updateItem,
         clearData
-    };
+    }), [
+        userProfile,
+        inventory,
+        outfitLogs,
+        apiKey,
+        location,
+        dailyQuest,
+        chatMessages,
+        completeQuest,
+        logOutfit,
+        updateItem,
+        clearData
+    ]);
 
     return (
         <VibeContext.Provider value={value}>
