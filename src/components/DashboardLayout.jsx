@@ -1,12 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
 import ContextPanel from './ContextPanel';
 import StyleRadar from './StyleRadar';
+import LevelUpModal from './LevelUpModal';
 
 const DashboardLayout = () => {
-    const { userProfile } = useVibe();
+    const { userProfile, setUserProfile, inventory } = useVibe();
+    const [showLevelModal, setShowLevelModal] = useState(false);
+
+    // Calculate current level
+    const currentLevel = Math.floor((userProfile?.xp || 0) / 1000) + 1;
+
+    // Track previous level to detect changes
+    const prevLevelRef = useRef(currentLevel);
+
+    useEffect(() => {
+        if (currentLevel > prevLevelRef.current) {
+            setShowLevelModal(true);
+        }
+        prevLevelRef.current = currentLevel;
+    }, [currentLevel]);
+
+    const handleClaimRewards = (xpReward) => {
+        setUserProfile(prev => ({
+            ...prev,
+            xp: (prev.xp || 0) + xpReward
+        }));
+        setShowLevelModal(false);
+    };
 
     return (
         <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
@@ -92,6 +115,16 @@ const DashboardLayout = () => {
 
             {/* Context Panel (30%) */}
             <ContextPanel />
+
+            {/* Level Up Modal */}
+            {showLevelModal && (
+                <LevelUpModal
+                    level={currentLevel}
+                    inventoryCount={inventory.length}
+                    onClaim={handleClaimRewards}
+                    onClose={() => setShowLevelModal(false)}
+                />
+            )}
         </div>
     );
 };
