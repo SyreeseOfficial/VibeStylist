@@ -3,6 +3,7 @@ import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Settings, Shirt, User } from 'lucide-react';
 import ContextPanel from './ContextPanel';
+import StyleRadar from './StyleRadar';
 
 const DashboardLayout = () => {
     const { userProfile } = useVibe();
@@ -77,6 +78,10 @@ const DashboardLayout = () => {
                             </div>
                         );
                     })()}
+                    })()}
+
+                    {/* Style Radar */}
+                    <StyleRadar />
                 </div>
             </aside>
 
