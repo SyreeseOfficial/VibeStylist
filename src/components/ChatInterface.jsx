@@ -3,6 +3,7 @@ import { Send, User, Sparkles, Trash2 } from 'lucide-react';
 import { useVibe } from '../context/VibeContext';
 import { generateStyleAdvice } from '../utils/aiService';
 import useWeather from '../hooks/useWeather';
+import ReactMarkdown from 'react-markdown';
 
 const ChatInterface = () => {
     const { apiKey, userProfile, inventory, chatMessages, setChatMessages } = useVibe();
@@ -143,7 +144,11 @@ const ChatInterface = () => {
                                             className="rounded-lg max-w-full h-auto max-h-[200px] object-cover border border-white/10"
                                         />
                                     )}
-                                    {msg.text && <p>{msg.text}</p>}
+                                    {msg.text && (
+                                        <div className={`markdown-content ${msg.sender === 'ai' ? 'prose prose-invert prose-sm max-w-none text-gray-200' : ''}`}>
+                                            {msg.sender === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : <p>{msg.text}</p>}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
