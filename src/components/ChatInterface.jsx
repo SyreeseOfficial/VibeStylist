@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Sparkles, Trash2 } from 'lucide-react';
 import { useVibe } from '../context/VibeContext';
 import { generateStyleAdvice } from '../utils/aiService';
+import useWeather from '../hooks/useWeather';
 
 const ChatInterface = () => {
     const { apiKey, userProfile, inventory, chatMessages, setChatMessages } = useVibe();
+    const { weather } = useWeather();
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
@@ -71,7 +73,8 @@ const ChatInterface = () => {
                 apiKey,
                 userProfile,
                 inventory,
-                [...chatMessages, newUserMsg]
+                [...chatMessages, newUserMsg],
+                weather
             );
 
             setChatMessages(prev => [...prev, {

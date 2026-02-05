@@ -1,4 +1,4 @@
-export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHistory) => {
+export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHistory, weatherData = null) => {
     if (!apiKey) {
         throw new Error("API Key is missing. Please add it in Settings.");
     }
@@ -20,11 +20,21 @@ User Profile:
 Available Clean Inventory:
 ${JSON.stringify(cleanInventory, null, 2)}
 
+Current Weather:
+${weatherData ? `${weatherData.temp}°F - ${weatherData.condition}` : "Not available"}
+
+
 Instructions:
 1. Suggest a cohesive outfit using ONLY the items listed in the inventory.
 2. Explain why this outfit matches their "vibe" (preferences).
 3. If they don't have enough items (e.g., missing shoes or bottoms), suggest what they should buy to complete the look.
+3. If they don't have enough items (e.g., missing shoes or bottoms), suggest what they should buy to complete the look.
 4. Keep the tone helpful, stylish, and concise.
+
+Weather-Specific Rules:
+- If rain/drizzle is detected, strictly warn against suede or canvas shoes.
+- If temp > 75°F (24°C), discourage heavy layering (thick knits, jackets).
+- Always reference the specific weather condition in your advice (e.g., "Since it's 52°F and raining...").
 `;
 
     // Check if the latest message has an image to trigger "Critique Mode"
