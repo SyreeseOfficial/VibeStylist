@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Settings, Shirt, X, Calendar } from 'lucide-react';
-import StyleRadar from './StyleRadar';
+import { Home, Settings, Shirt, X, Calendar, BarChart3, Heart } from 'lucide-react';
 import { STYLES } from '../utils/styles';
 
 const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
@@ -40,6 +39,10 @@ const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
                     <Shirt size={20} />
                     <span className="font-medium">Inventory</span>
                 </Link>
+                <Link to="/wishlist" className={STYLES.NAV.LINK_INACTIVE}>
+                    <Heart size={20} />
+                    <span className="font-medium">Wishlist</span>
+                </Link>
                 <Link to="/logbook" className={STYLES.NAV.LINK_INACTIVE}>
                     <svg
                         width="20"
@@ -56,6 +59,10 @@ const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
                     </svg>
                     <span className="font-medium">Logbook</span>
                 </Link>
+                <Link to="/stats" className={STYLES.NAV.LINK_INACTIVE}>
+                    <BarChart3 size={20} />
+                    <span className="font-medium">Stats</span>
+                </Link>
                 <Link to="/settings" className={STYLES.NAV.LINK_INACTIVE}>
                     <Settings size={20} />
                     <span className="font-medium">Settings</span>
@@ -69,7 +76,14 @@ const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
                     </div>
                     <div className="text-sm min-w-0">
                         <p className="font-medium text-gray-200 truncate">{userProfile?.name || 'User Profile'}</p>
-                        <p className="text-xs text-purple-400 font-semibold font-mono-system">Level {level} Stylist</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-xs text-purple-400 font-semibold font-mono-system">Level {level} Stylist</p>
+                            {(userProfile?.streak || 0) > 0 && (
+                                <span className="text-xs text-orange-400 font-bold bg-orange-400/10 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                                    🔥 {userProfile.streak}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </Link>
 
@@ -85,9 +99,6 @@ const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
                         />
                     </div>
                 </div>
-
-                {/* Style Radar */}
-                <StyleRadar />
             </div>
         </aside>
     );

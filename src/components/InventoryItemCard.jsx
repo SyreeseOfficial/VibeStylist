@@ -14,14 +14,16 @@ const InventoryItemCard = ({
     onSave = () => { },
     onCancel = () => { },
     onDelete = () => { },
-    onToggleClean = () => { }
+    onToggleClean = () => { },
+    isWishlist = false,
+    onBuy = () => { }
 }) => {
     return (
         <div
             onClick={() => onItemClick(item.id)}
             className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-start transition-all duration-300 relative group overflow-hidden 
-                ${!item.isClean ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'} 
-                ${item.wearCount >= 50 && !isSelectionMode ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'border-gray-700'}
+                ${!item.isClean && !isWishlist ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'} 
+                ${item.wearCount >= 50 && !isSelectionMode && !isWishlist ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'border-gray-700'}
                 ${isSelectionMode ? 'cursor-pointer hover:bg-gray-700' : ''}
                 ${isSelectionMode && isSelected ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-500/10' : ''}
             `}
@@ -94,20 +96,28 @@ const InventoryItemCard = ({
                             <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">
                                 {item.category}
                             </span>
-                            {/* Wear Count Badges */}
-                            {(!item.wearCount || item.wearCount < 5) && (
+
+                            {/* Price Badge (Always show if price exists) */}
+                            {item.price > 0 && isWishlist && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-green-500/30 text-green-400 font-mono-system">
+                                    ${parseFloat(item.price).toFixed(2)}
+                                </span>
+                            )}
+
+                            {/* Wear Count Badges - Hide for Wishlist */}
+                            {!isWishlist && (!item.wearCount || item.wearCount < 5) && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded border border-blue-500/30 text-blue-400 font-mono-system">New</span>
                             )}
-                            {item.wearCount >= 20 && item.wearCount < 50 && (
+                            {!isWishlist && item.wearCount >= 20 && item.wearCount < 50 && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 text-purple-400 font-mono-system">Broken In</span>
                             )}
-                            {item.wearCount >= 50 && (
+                            {!isWishlist && item.wearCount >= 50 && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 text-yellow-400 font-medium font-mono-system shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-pulse">Legendary</span>
                             )}
                         </div>
 
-                        {/* Cost Per Wear */}
-                        {item.price > 0 && (
+                        {/* Cost Per Wear - Hide for Wishlist */}
+                        {!isWishlist && item.price > 0 && (
                             <div className="mt-2 text-xs font-mono-system">
                                 {(() => {
                                     const { value, colorClass } = calculateCPW(item.price, item.wearCount);
@@ -121,7 +131,8 @@ const InventoryItemCard = ({
                         )}
 
                         <div className="mt-3 flex items-center gap-2">
-                            {!isSelectionMode && (
+                            {/* Clean/Dirty Toggle - Hide for Wishlist */}
+                            {!isSelectionMode && !isWishlist && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); onToggleClean(item.id); }}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${item.isClean
@@ -134,6 +145,16 @@ const InventoryItemCard = ({
                                     ) : (
                                         <><Droplets size={12} /> Dirty</>
                                     )}
+                                </button>
+                            )}
+
+                            {/* Buy Button - ONLY for Wishlist */}
+                            {isWishlist && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onBuy(item); }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20"
+                                >
+                                    <Check size={12} /> Purchased
                                 </button>
                             )}
                         </div>

@@ -26,6 +26,11 @@ export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHi
         systemPrompt += SYSTEM_PROMPTS.CRITIQUE_MODE;
     }
 
+    // Check for Sass Mode
+    if (userProfile.sassMode) {
+        systemPrompt += SYSTEM_PROMPTS.SASS_MODE;
+    }
+
     // Format history for Gemini API (user/model roles)
     const contents = [
         {

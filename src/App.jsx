@@ -22,6 +22,8 @@ import DashboardHome from './pages/DashboardHome';
 import InventoryPage from './pages/InventoryPage';
 import Logbook from './pages/Logbook';
 import PlannerPage from './pages/PlannerPage';
+import StatsPage from './pages/StatsPage';
+import WishlistPage from './pages/WishlistPage';
 
 // ... (RequireProfile remains same)
 
@@ -42,6 +44,8 @@ function App() {
               <Route path="inventory" element={<InventoryPage />} />
               <Route path="planner" element={<PlannerPage />} />
               <Route path="logbook" element={<Logbook />} />
+              <Route path="stats" element={<StatsPage />} />
+              <Route path="wishlist" element={<WishlistPage />} />
             </Route>
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/onboarding" element={<Onboarding />} />

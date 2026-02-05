@@ -58,6 +58,7 @@ const DashboardLayout = () => {
                 <MobileHeader
                     setIsMobileNavOpen={setIsMobileNavOpen}
                     setIsMobileContextOpen={setIsMobileContextOpen}
+                    userProfile={userProfile}
                 />
 
                 <div className="flex-1 overflow-auto relative">

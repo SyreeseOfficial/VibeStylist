@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { DAILY_QUESTS, XP_REWARDS, LOCAL_STORAGE_KEYS } from '../utils/constants';
+import confetti from 'canvas-confetti';
 
 const VibeContext = createContext();
 
@@ -28,6 +29,7 @@ export const VibeProvider = ({ children }) => {
     const [outfitLogs, setOutfitLogs] = useState(() => loadState(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, []));
     const [apiKey, setApiKey] = useState(() => loadState(LOCAL_STORAGE_KEYS.API_KEY, ''));
     const [location, setLocation] = useState(() => loadState(LOCAL_STORAGE_KEYS.LOCATION, ''));
+    const [budget, setBudget] = useState(() => loadState('vibe_budget', 0));
 
     // Daily Quest State
     const [dailyQuest, setDailyQuest] = useState(() => loadState(LOCAL_STORAGE_KEYS.DAILY_QUEST, {
@@ -41,6 +43,9 @@ export const VibeProvider = ({ children }) => {
 
     // Planner State
     const [tomorrowOutfit, setTomorrowOutfit] = useState(() => loadState(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT, []));
+
+    // Wishlist State
+    const [wishlist, setWishlist] = useState(() => loadState(LOCAL_STORAGE_KEYS.WISHLIST, []));
 
     // Daily Quest Logic: Rotate if date changed
     useEffect(() => {
@@ -79,6 +84,10 @@ export const VibeProvider = ({ children }) => {
     }, [location]);
 
     useEffect(() => {
+        localStorage.setItem('vibe_budget', JSON.stringify(budget));
+    }, [budget]);
+
+    useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_KEYS.DAILY_QUEST, JSON.stringify(dailyQuest));
     }, [dailyQuest]);
 
@@ -90,11 +99,51 @@ export const VibeProvider = ({ children }) => {
         localStorage.setItem(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT, JSON.stringify(tomorrowOutfit));
     }, [tomorrowOutfit]);
 
+    useEffect(() => {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.WISHLIST, JSON.stringify(wishlist));
+    }, [wishlist]);
+
     const logOutfit = useCallback((itemIds = []) => {
-        // Award XP
+        // Calculate Streak
+        const today = new Date().toDateString();
+        const lastLogDate = userProfile.lastLogDate;
+        let newStreak = userProfile.streak || 0;
+        let newBadges = userProfile.badges || [];
+
+        // If not logged today
+        if (lastLogDate !== today) {
+            if (lastLogDate) {
+                const lastDate = new Date(lastLogDate);
+                const timeDiff = new Date(today).getTime() - lastDate.getTime();
+                const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+                if (daysDiff === 1) {
+                    newStreak += 1;
+                } else {
+                    newStreak = 1; // Reset if missed a day
+                }
+            } else {
+                newStreak = 1; // First log
+            }
+        }
+
+        // Trigger Confetti & Badge for 7 days
+        if (newStreak === 7 && !newBadges.includes('Fashionista')) {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            newBadges = [...newBadges, 'Fashionista'];
+        }
+
+        // Award XP & Update Profile
         setUserProfile(prev => ({
             ...prev,
-            xp: (prev.xp || 0) + XP_REWARDS.LOG_OUTFIT
+            xp: (prev.xp || 0) + XP_REWARDS.LOG_OUTFIT,
+            streak: newStreak,
+            lastLogDate: today,
+            badges: newBadges
         }));
 
         // Create Log Entry
@@ -132,6 +181,37 @@ export const VibeProvider = ({ children }) => {
         }
     }, [dailyQuest.isCompleted]);
 
+    const addToWishlist = useCallback((item) => {
+        setWishlist(prev => {
+            // Avoid duplicates by ID if possible, or name
+            if (prev.some(i => i.id === item.id)) return prev;
+            return [...prev, item];
+        });
+    }, []);
+
+    const removeFromWishlist = useCallback((id) => {
+        setWishlist(prev => prev.filter(item => item.id !== id));
+    }, []);
+
+    const buyItem = useCallback((item) => {
+        // Remove from wishlist
+        setWishlist(prev => prev.filter(i => i.id !== item.id));
+
+        // Add to inventory
+        const newItem = {
+            ...item,
+            wearCount: 0,
+            isClean: true,
+            dateAdded: new Date().toISOString()
+        };
+        setInventory(prev => [...prev, newItem]);
+
+        // Deduct budget
+        if (item.price) {
+            setBudget(prev => prev - parseFloat(item.price));
+        }
+    }, [setInventory]);
+
     const clearData = useCallback(() => {
         localStorage.removeItem(LOCAL_STORAGE_KEYS.USER_PROFILE);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.INVENTORY);
@@ -139,57 +219,73 @@ export const VibeProvider = ({ children }) => {
         localStorage.removeItem(LOCAL_STORAGE_KEYS.API_KEY);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.DAILY_QUEST);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.WISHLIST);
         setUserProfile({ xp: 0 });
         setInventory([]);
         setOutfitLogs([]);
         setApiKey('');
         setTomorrowOutfit([]);
-        setDailyQuest({
-            text: DAILY_QUESTS[0],
-            isCompleted: false,
+        setWishlist([]);
+        isCompleted: false,
             date: new Date().toDateString()
-        });
-    }, []);
+    });
+    setBudget(0);
+}, []);
 
-    const value = useMemo(() => ({
-        userProfile,
-        setUserProfile,
-        inventory,
-        setInventory,
-        outfitLogs,
-        setOutfitLogs,
-        apiKey,
-        setApiKey,
-        location,
-        setLocation,
-        dailyQuest,
-        completeQuest,
-        chatMessages,
-        setChatMessages,
-        logOutfit,
-        updateItem,
-        clearData,
-        tomorrowOutfit,
-        setTomorrowOutfit
-    }), [
-        userProfile,
-        inventory,
-        outfitLogs,
-        apiKey,
-        location,
-        dailyQuest,
-        chatMessages,
-        completeQuest,
-        logOutfit,
-        logOutfit,
-        updateItem,
-        clearData,
-        tomorrowOutfit
-    ]);
+const value = useMemo(() => ({
+    userProfile,
+    setUserProfile,
+    inventory,
+    setInventory,
+    outfitLogs,
+    setOutfitLogs,
+    apiKey,
+    setApiKey,
+    location,
+    setLocation,
+    dailyQuest,
+    completeQuest,
+    chatMessages,
+    setChatMessages,
+    logOutfit,
+    updateItem,
+    clearData,
+    tomorrowOutfit,
+    tomorrowOutfit,
+    setTomorrowOutfit,
+    wishlist,
+    setWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    budget,
+    setBudget,
+    buyItem
+}), [
+    userProfile,
+    inventory,
+    outfitLogs,
+    apiKey,
+    location,
+    dailyQuest,
+    chatMessages,
+    completeQuest,
+    logOutfit,
+    logOutfit,
+    updateItem,
+    clearData,
+    updateItem,
+    clearData,
+    tomorrowOutfit,
+    wishlist,
+    addToWishlist,
+    removeFromWishlist,
+    budget,
+    buyItem
+]);
 
-    return (
-        <VibeContext.Provider value={value}>
-            {children}
-        </VibeContext.Provider>
-    );
+return (
+    <VibeContext.Provider value={value}>
+        {children}
+    </VibeContext.Provider>
+);
 };

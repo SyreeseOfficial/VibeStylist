@@ -4,6 +4,7 @@ import { useVibe } from '../context/VibeContext';
 import { generateStyleAdvice } from '../utils/aiService';
 import useWeather from '../hooks/useWeather';
 import EmptyState from './EmptyState';
+import SkeletonMessage from './SkeletonMessage';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
 import { STYLES } from '../utils/styles';
@@ -120,16 +121,7 @@ const ChatInterface = () => {
                     ))
                 )}
                 {isLoading && (
-                    <div className="flex w-full justify-start">
-                        <div className="flex max-w-[80%] md:max-w-[70%] gap-3 flex-row">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-600">
-                                <Sparkles size={16} className="animate-pulse" />
-                            </div>
-                            <div className="p-3 rounded-2xl text-sm leading-relaxed bg-gray-800 text-gray-400 border border-gray-700 rounded-tl-none italic">
-                                Thinking...
-                            </div>
-                        </div>
-                    </div>
+                    <SkeletonMessage />
                 )}
                 <div ref={messagesEndRef} />
             </div>

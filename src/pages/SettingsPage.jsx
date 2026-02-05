@@ -6,7 +6,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { testApiKeyConnection } from '../utils/aiService';
 
 const SettingsPage = () => {
-    const { apiKey, setApiKey, clearData, location, setLocation } = useVibe();
+    const { apiKey, setApiKey, clearData, location, setLocation, userProfile, setUserProfile } = useVibe();
     const [inputKey, setInputKey] = useState(apiKey);
     const [inputLocation, setInputLocation] = useState(location);
     const [saved, setSaved] = useState(false);
@@ -164,6 +164,18 @@ const SettingsPage = () => {
                     <h2 className="text-lg font-semibold text-white">App Preferences</h2>
 
                     <div className="space-y-3">
+                        <button
+                            onClick={() => setUserProfile(prev => ({ ...prev, sassMode: !prev.sassMode }))}
+                            className={`w-full text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition group ${userProfile?.sassMode ? 'bg-purple-600 hover:bg-purple-700' : 'bg-slate-700 hover:bg-slate-600'}`}
+                        >
+                            <span className="flex items-center gap-3">
+                                {userProfile?.sassMode ? '🔥' : '😐'}
+                                Roast My Fit Mode
+                            </span>
+                            <span className="text-xs text-white/70">
+                                {userProfile?.sassMode ? 'Enabled (Good luck)' : 'Disabled'}
+                            </span>
+                        </button>
                         <button
                             onClick={() => navigate('/onboarding')}
                             className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition group"

@@ -3,8 +3,8 @@ import { useVibe } from '../context/VibeContext';
 import { Plus, Check, Camera, X } from 'lucide-react';
 import { resizeImage } from '../utils/imageUtils';
 
-const AddItemForm = () => {
-    const { setInventory } = useVibe();
+const AddItemForm = ({ mode = 'inventory' }) => {
+    const { setInventory, addToWishlist } = useVibe();
     const [formData, setFormData] = useState({
         name: '',
         category: 'Top',
@@ -41,7 +41,12 @@ const AddItemForm = () => {
             dateAdded: new Date().toISOString()
         };
 
-        setInventory(prev => [...prev, newItem]);
+        if (mode === 'wishlist') {
+            // Wishlist items might not need isClean or wearCount initially, but keeping structure is fine.
+            addToWishlist(newItem);
+        } else {
+            setInventory(prev => [...prev, newItem]);
+        }
 
         // Reset form and show success
         setFormData({ name: '', category: 'Top', price: '', isClean: true });
@@ -53,8 +58,8 @@ const AddItemForm = () => {
     return (
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-sm">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Plus size={20} className="text-blue-500" />
-                Add New Item
+                <Plus size={20} className={mode === 'wishlist' ? "text-purple-500" : "text-blue-500"} />
+                {mode === 'wishlist' ? 'Add to Wishlist' : 'Add New Item'}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -103,7 +108,7 @@ const AddItemForm = () => {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Navy Blue Blazer"
+                        placeholder={mode === 'wishlist' ? "e.g. Dream Jacket" : "e.g. Navy Blue Blazer"}
                         required
                         className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition"
                     />
@@ -111,7 +116,9 @@ const AddItemForm = () => {
 
                 {/* Price */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Purchase Price ($)</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                        {mode === 'wishlist' ? 'Estimated Price ($)' : 'Purchase Price ($)'}
+                    </label>
                     <input
                         type="number"
                         min="0"
@@ -138,28 +145,31 @@ const AddItemForm = () => {
                     </select>
                 </div>
 
-                {/* Clean/Dirty */}
-                <div className="flex items-center gap-3">
-                    <input
-                        type="checkbox"
-                        id="isClean"
-                        checked={formData.isClean}
-                        onChange={(e) => setFormData({ ...formData, isClean: e.target.checked })}
-                        className="w-5 h-5 rounded border-gray-600 bg-gray-900 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="isClean" className="text-sm text-gray-300">Item is Clean</label>
-                </div>
+                {/* Clean/Dirty - Hide in Wishlist Mode */}
+                {mode !== 'wishlist' && (
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            id="isClean"
+                            checked={formData.isClean}
+                            onChange={(e) => setFormData({ ...formData, isClean: e.target.checked })}
+                            className="w-5 h-5 rounded border-gray-600 bg-gray-900 text-blue-600 focus:ring-blue-500"
+                        />
+                        <label htmlFor="isClean" className="text-sm text-gray-300">Item is Clean</label>
+                    </div>
+                )}
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition flex items-center justify-center gap-2 mt-4"
+                    className={`w-full text-white font-medium py-2 rounded-lg transition flex items-center justify-center gap-2 mt-4 ${mode === 'wishlist' ? 'bg-purple-600 hover:bg-purple-500' : 'bg-blue-600 hover:bg-blue-500'
+                        }`}
                 >
                     {showSuccess ? (
                         <>
                             <Check size={18} /> Added!
                         </>
                     ) : (
-                        'Add to Wardrobe'
+                        mode === 'wishlist' ? 'Add to Wishlist' : 'Add to Wardrobe'
                     )}
                 </button>
             </form>
