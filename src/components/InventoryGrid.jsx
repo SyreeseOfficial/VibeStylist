@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
-import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown, Calendar } from 'lucide-react';
 
-const InventoryGrid = () => {
-    const { inventory, setInventory, updateItem } = useVibe();
+const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => {
+    const { inventory, setInventory, updateItem, logOutfit } = useVibe();
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
+
 
     // Filter & Sort State
     const [searchQuery, setSearchQuery] = useState('');
@@ -36,6 +37,18 @@ const InventoryGrid = () => {
 
     const handleCancel = () => {
         setEditingId(null);
+    };
+
+    const handleItemClick = (id) => {
+        if (!isSelectionMode) return;
+
+        setSelectedItems(prev => {
+            if (prev.includes(id)) {
+                return prev.filter(item => item !== id);
+            } else {
+                return [...prev, id];
+            }
+        });
     };
 
     // Derived State: Filtered & Sorted Inventory
@@ -92,7 +105,9 @@ const InventoryGrid = () => {
                     />
                 </div>
 
-                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 items-center">
+                    {/* Simplified toolbar without Log Outfit buttons since they are now in the header */}
+
                     {/* Category Filter */}
                     <div className="relative min-w-[120px]">
                         <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
@@ -140,11 +155,13 @@ const InventoryGrid = () => {
                     sortedFinal.map((item) => (
                         <div
                             key={item.id}
-                            className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-start transition-all duration-300 relative group overflow-hidden ${!item.isClean ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'
-                                } ${item.wearCount >= 50
-                                    ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]'
-                                    : 'border-gray-700'
-                                }`}
+                            onClick={() => handleItemClick(item.id)}
+                            className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-start transition-all duration-300 relative group overflow-hidden 
+                                ${!item.isClean ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'} 
+                                ${item.wearCount >= 50 && !isSelectionMode ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'border-gray-700'}
+                                ${isSelectionMode ? 'cursor-pointer hover:bg-gray-700' : ''}
+                                ${isSelectionMode && selectedItems.includes(item.id) ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-500/10' : ''}
+                            `}
                         >
                             {editingId === item.id ? (
                                 <div className="flex-1 space-y-2 mr-2">
@@ -193,7 +210,14 @@ const InventoryGrid = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex gap-4 items-start">
+                                <div className="flex gap-4 items-start w-full">
+                                    {/* Selection Indicator */}
+                                    {isSelectionMode && (
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${selectedItems.includes(item.id) ? 'bg-blue-500 border-blue-500' : 'border-gray-500'}`}>
+                                            {selectedItems.includes(item.id) && <Check size={14} className="text-white" />}
+                                        </div>
+                                    )}
+
                                     {/* Image Thumbnail */}
                                     {item.image && (
                                         <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-700 bg-gray-900">
@@ -241,35 +265,39 @@ const InventoryGrid = () => {
                                         )}
 
                                         <div className="mt-3 flex items-center gap-2">
-                                            <button
-                                                onClick={() => toggleClean(item.id)}
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${item.isClean
-                                                    ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50'
-                                                    : 'bg-yellow-900/30 text-yellow-500 hover:bg-yellow-900/50'
-                                                    }`}
-                                            >
-                                                {item.isClean ? (
-                                                    <><Sparkles size={12} /> Clean</>
-                                                ) : (
-                                                    <><Droplets size={12} /> Dirty</>
-                                                )}
-                                            </button>
+                                            {!isSelectionMode && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); toggleClean(item.id); }}
+                                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${item.isClean
+                                                        ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50'
+                                                        : 'bg-yellow-900/30 text-yellow-500 hover:bg-yellow-900/50'
+                                                        }`}
+                                                >
+                                                    {item.isClean ? (
+                                                        <><Sparkles size={12} /> Clean</>
+                                                    ) : (
+                                                        <><Droplets size={12} /> Dirty</>
+                                                    )}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {!editingId && (
+
+
+                            {!editingId && !isSelectionMode && (
                                 <div className="flex flex-col gap-2">
                                     <button
-                                        onClick={() => handleEditClick(item)}
+                                        onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}
                                         className="p-2 text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition"
                                         title="Edit Item"
                                     >
                                         <Pencil size={18} />
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(item.id)}
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
                                         className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition"
                                         title="Delete Item"
                                     >
@@ -281,7 +309,7 @@ const InventoryGrid = () => {
                     ))
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
