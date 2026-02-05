@@ -5,13 +5,14 @@ import { ArrowRight, ArrowLeft, Check, User, Sliders, Save } from 'lucide-react'
 
 const Onboarding = () => {
     const navigate = useNavigate();
-    const { setUserProfile } = useVibe();
+    const { setUserProfile, setBudget } = useVibe();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         name: '',
         fitPreference: 50, // 0: Tight, 100: Loose
         colorPalette: 50,  // 0: Neutral, 100: Vibrant
-        utilityVsAesthetic: 50 // 0: Utility, 100: Aesthetic
+        utilityVsAesthetic: 50, // 0: Utility, 100: Aesthetic
+        budget: 0 // Default budget
     });
 
     const handleNext = () => setStep(prev => prev + 1);
@@ -19,6 +20,7 @@ const Onboarding = () => {
 
     const handleSave = () => {
         setUserProfile(prev => ({ ...prev, ...formData }));
+        setBudget(parseFloat(formData.budget) || 0);
         navigate('/');
     };
 
@@ -127,6 +129,21 @@ const Onboarding = () => {
                                     className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
                                 />
                             </div>
+
+                            {/* Budget */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Monthly Clothing Budget ($)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={formData.budget}
+                                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                                    placeholder="e.g. 200"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition"
+                                />
+                            </div>
                         </div>
                     )}
 
@@ -149,9 +166,13 @@ const Onboarding = () => {
                                         <span className="text-gray-400">Color Vibe</span>
                                         <span className="font-semibold">{formData.colorPalette}% Vibrant</span>
                                     </div>
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
                                         <span className="text-gray-400">Style Priority</span>
                                         <span className="font-semibold">{formData.utilityVsAesthetic}% Aesthetic</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400">Monthly Budget</span>
+                                        <span className="font-semibold text-green-400">${formData.budget}</span>
                                     </div>
                                 </div>
                             </div>

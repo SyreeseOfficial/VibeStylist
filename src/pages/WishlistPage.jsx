@@ -5,7 +5,9 @@ import { useVibe } from '../context/VibeContext';
 import { Heart, Wallet } from 'lucide-react';
 
 const WishlistPage = () => {
-    const { wishlist, budget } = useVibe();
+    const { wishlist, budget, setBudget } = useVibe();
+    const [isEditingBudget, setIsEditingBudget] = React.useState(false);
+    const [newBudget, setNewBudget] = React.useState(budget);
     // Wishlist doesn't strictly need selection mode for now as per requirements, 
     // but InventoryGrid supports it if we pass props. 
     // I'll keep it simple for now and not implement bulk selection for wishlist unless needed.
@@ -32,9 +34,36 @@ const WishlistPage = () => {
                         <Wallet className="text-green-400" size={20} />
                         <div className="flex flex-col items-end">
                             <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Remaining Budget</span>
-                            <span className={`text-lg font-bold font-mono-system ${budget < 0 ? 'text-red-400' : 'text-white'}`}>
-                                ${budget.toFixed(2)}
-                            </span>
+                            {isEditingBudget ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        value={newBudget}
+                                        onChange={(e) => setNewBudget(e.target.value)}
+                                        className="w-24 bg-gray-900 border border-gray-600 rounded px-2 py-0.5 text-white text-sm focus:outline-none focus:border-green-500"
+                                        autoFocus
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            setBudget(parseFloat(newBudget));
+                                            setIsEditingBudget(false);
+                                        }}
+                                        className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-500"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => {
+                                    setNewBudget(budget); // Sync before editing
+                                    setIsEditingBudget(true);
+                                }}>
+                                    <span className={`text-lg font-bold font-mono-system ${budget < 0 ? 'text-red-400' : 'text-white'}`}>
+                                        ${budget.toFixed(2)}
+                                    </span>
+                                    <span className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">Edit</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

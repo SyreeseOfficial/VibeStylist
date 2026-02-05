@@ -253,7 +253,6 @@ export const VibeProvider = ({ children }) => {
         updateItem,
         clearData,
         tomorrowOutfit,
-        tomorrowOutfit,
         setTomorrowOutfit,
         wishlist,
         setWishlist,
