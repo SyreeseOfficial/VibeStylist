@@ -98,6 +98,17 @@ export const VibeProvider = ({ children }) => {
             xp: (prev.xp || 0) + 100
         }));
 
+        // Create Log Entry
+        const newLog = {
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            items: inventory.filter(item => itemIds.includes(item.id)), // Snapshot of items
+            vibeScore: Math.floor(Math.random() * 10) + 85, // Dummy Vibe Score for now
+            questCompleted: dailyQuest.isCompleted ? dailyQuest.text : null,
+        };
+
+        setOutfitLogs(prev => [newLog, ...prev]);
+
         // Increment wear count for items
         if (itemIds.length > 0) {
             setInventory(prev => prev.map(item => {

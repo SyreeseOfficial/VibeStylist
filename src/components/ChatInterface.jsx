@@ -4,6 +4,7 @@ import { useVibe } from '../context/VibeContext';
 import { generateStyleAdvice } from '../utils/aiService';
 import useWeather from '../hooks/useWeather';
 import ReactMarkdown from 'react-markdown';
+import EmptyState from './EmptyState';
 
 const ChatInterface = () => {
     const { apiKey, userProfile, inventory, chatMessages, setChatMessages } = useVibe();
@@ -53,15 +54,26 @@ const ChatInterface = () => {
         }
     };
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if ((!inputValue.trim() && !selectedImage) || isLoading) return;
+    const handleStarterSelect = (promptText) => {
+        setInputValue(promptText);
+        // We need to trigger send immediately, but handleSend expects an event.
+        // We can refactor handleSend or just synthesize an event.
+        // Ideally, we refactor logic out, but for now we can just call the logic directly.
+        // A better way is to set state and trigger effect, or separate logic.
+        // Let's refactor handleSend slightly to be reusable or just call it.
+        // Actually, let's just create a synthetic event or call the logic.
 
-        const userText = inputValue;
+        // Better approach: Call logic directly.
+        submitMessage(promptText);
+    };
+
+    const submitMessage = async (text, image = null) => {
+        if ((!text.trim() && !image) || isLoading) return;
+
         const newUserMsg = {
             sender: 'user',
-            text: userText,
-            image: selectedImage
+            text: text,
+            image: image
         };
 
         setChatMessages(prev => [...prev, newUserMsg]);
@@ -92,6 +104,11 @@ const ChatInterface = () => {
         }
     };
 
+    const handleSend = async (e) => {
+        e.preventDefault();
+        submitMessage(inputValue, selectedImage);
+    };
+
     return (
         <div className="flex flex-col h-full bg-gray-900 rounded-xl overflow-hidden shadow-inner md:border border-gray-800">
             {/* Header */}
@@ -117,43 +134,47 @@ const ChatInterface = () => {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {chatMessages.map((msg, index) => (
-                    <div
-                        key={index}
-                        className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                        <div className={`flex flex-col max-w-[80%] md:max-w-[70%] gap-1 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                            <div className={`flex gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                {/* Avatar */}
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.sender === 'user'
-                                    ? 'bg-blue-600'
-                                    : 'bg-purple-600'
-                                    }`}>
-                                    {msg.sender === 'user' ? <User size={16} /> : <Sparkles size={16} />}
-                                </div>
+                {chatMessages.length === 0 ? (
+                    <EmptyState onSelect={handleStarterSelect} />
+                ) : (
+                    chatMessages.map((msg, index) => (
+                        <div
+                            key={index}
+                            className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                            <div className={`flex flex-col max-w-[80%] md:max-w-[70%] gap-1 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                                <div className={`flex gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    {/* Avatar */}
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.sender === 'user'
+                                        ? 'bg-blue-600'
+                                        : 'bg-purple-600'
+                                        }`}>
+                                        {msg.sender === 'user' ? <User size={16} /> : <Sparkles size={16} />}
+                                    </div>
 
-                                {/* Content Bubble */}
-                                <div className={`flex flex-col gap-2 p-3 rounded-2xl text-sm leading-relaxed ${msg.sender === 'user'
-                                    ? 'bg-blue-600/20 text-blue-100 border border-blue-600/30 rounded-tr-none'
-                                    : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-tl-none'
-                                    }`}>
-                                    {msg.image && (
-                                        <img
-                                            src={msg.image}
-                                            alt="User upload"
-                                            className="rounded-lg max-w-full h-auto max-h-[200px] object-cover border border-white/10"
-                                        />
-                                    )}
-                                    {msg.text && (
-                                        <div className={`markdown-content ${msg.sender === 'ai' ? 'prose prose-invert prose-sm max-w-none text-gray-200' : ''}`}>
-                                            {msg.sender === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : <p>{msg.text}</p>}
-                                        </div>
-                                    )}
+                                    {/* Content Bubble */}
+                                    <div className={`flex flex-col gap-2 p-3 rounded-2xl text-sm leading-relaxed ${msg.sender === 'user'
+                                        ? 'bg-blue-600/20 text-blue-100 border border-blue-600/30 rounded-tr-none'
+                                        : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-tl-none'
+                                        }`}>
+                                        {msg.image && (
+                                            <img
+                                                src={msg.image}
+                                                alt="User upload"
+                                                className="rounded-lg max-w-full h-auto max-h-[200px] object-cover border border-white/10"
+                                            />
+                                        )}
+                                        {msg.text && (
+                                            <div className={`markdown-content ${msg.sender === 'ai' ? 'prose prose-invert prose-sm max-w-none text-gray-200' : ''}`}>
+                                                {msg.sender === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : <p>{msg.text}</p>}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
                 {isLoading && (
                     <div className="flex w-full justify-start">
                         <div className="flex max-w-[80%] md:max-w-[70%] gap-3 flex-row">
