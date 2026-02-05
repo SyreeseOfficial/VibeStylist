@@ -180,16 +180,20 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
                             onChange={(e) => setSortBy(e.target.value)}
                             className="w-full appearance-none bg-slate-900 border border-slate-600 rounded-lg pl-9 pr-8 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                         >
-                            <option value="newest">Newest</option>
-                            {mode === 'inventory' && (
-                                <>
-                                    <option value="mostWorn">Most Worn</option>
-                                    <option value="leastWorn">Least Worn</option>
-                                    <option value="bestValue">Best Value (Low CPW)</option>
-                                    <option value="worstValue">Worst Value (High CPW)</option>
-                                    <option value="neglected">Neglected (Wear More!)</option>
-                                </>
-                            )}
+                            {[
+                                { value: 'newest', label: 'Newest' },
+                                ...(mode === 'inventory' ? [
+                                    { value: 'mostWorn', label: 'Most Worn' },
+                                    { value: 'leastWorn', label: 'Least Worn' },
+                                    { value: 'bestValue', label: 'Best Value (Low CPW)' },
+                                    { value: 'worstValue', label: 'Worst Value (High CPW)' },
+                                    { value: 'neglected', label: 'Neglected (Wear More!)' }
+                                ] : [])
+                            ].map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
