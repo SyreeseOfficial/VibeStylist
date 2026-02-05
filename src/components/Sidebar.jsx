@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Settings, Shirt, X } from 'lucide-react';
+import { Home, Settings, Shirt, X, Calendar } from 'lucide-react';
 import StyleRadar from './StyleRadar';
 import { STYLES } from '../utils/styles';
 
@@ -31,6 +31,10 @@ const Sidebar = ({ isMobileNavOpen, setIsMobileNavOpen, userProfile }) => {
                 <Link to="/" className={STYLES.NAV.LINK_ACTIVE}>
                     <Home size={20} />
                     <span className="font-medium">Dashboard</span>
+                </Link>
+                <Link to="/planner" className={STYLES.NAV.LINK_INACTIVE}>
+                    <Calendar size={20} />
+                    <span className="font-medium">Plan for Tomorrow</span>
                 </Link>
                 <Link to="/inventory" className={STYLES.NAV.LINK_INACTIVE}>
                     <Shirt size={20} />

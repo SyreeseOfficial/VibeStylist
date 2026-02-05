@@ -61,5 +61,6 @@ export const LOCAL_STORAGE_KEYS = {
     API_KEY: 'apiKey',
     LOCATION: 'location',
     DAILY_QUEST: 'dailyQuest',
-    CHAT_MESSAGES: 'chatMessages'
+    CHAT_MESSAGES: 'chatMessages',
+    TOMORROW_OUTFIT: 'tomorrowOutfit'
 };

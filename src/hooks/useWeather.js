@@ -26,7 +26,7 @@ const useWeather = () => {
         const fetchWeather = async (lat, lon) => {
             try {
                 const response = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`
+                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`
                 );
 
                 if (!response.ok) {
@@ -41,7 +41,15 @@ const useWeather = () => {
                         humidity: data.current.relative_humidity_2m,
                         windSpeed: Math.round(data.current.wind_speed_10m),
                         condition: getWeatherLabel(data.current.weather_code),
-                        code: data.current.weather_code
+                        code: data.current.weather_code,
+                        forecast: {
+                            tomorrow: {
+                                maxTemp: Math.round(data.daily.temperature_2m_max[1]),
+                                minTemp: Math.round(data.daily.temperature_2m_min[1]),
+                                code: data.daily.weather_code[1],
+                                condition: getWeatherLabel(data.daily.weather_code[1])
+                            }
+                        }
                     });
                     setLoading(false);
                 }

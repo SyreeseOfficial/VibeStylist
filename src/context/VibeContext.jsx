@@ -39,6 +39,9 @@ export const VibeProvider = ({ children }) => {
     // Chat State
     const [chatMessages, setChatMessages] = useState(() => loadState(LOCAL_STORAGE_KEYS.CHAT_MESSAGES, []));
 
+    // Planner State
+    const [tomorrowOutfit, setTomorrowOutfit] = useState(() => loadState(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT, []));
+
     // Daily Quest Logic: Rotate if date changed
     useEffect(() => {
         const today = new Date().toDateString();
@@ -82,6 +85,10 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(chatMessages));
     }, [chatMessages]);
+
+    useEffect(() => {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT, JSON.stringify(tomorrowOutfit));
+    }, [tomorrowOutfit]);
 
     const logOutfit = useCallback((itemIds = []) => {
         // Award XP
@@ -131,10 +138,12 @@ export const VibeProvider = ({ children }) => {
         localStorage.removeItem(LOCAL_STORAGE_KEYS.OUTFIT_LOGS);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.API_KEY);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.DAILY_QUEST);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.TOMORROW_OUTFIT);
         setUserProfile({ xp: 0 });
         setInventory([]);
         setOutfitLogs([]);
         setApiKey('');
+        setTomorrowOutfit([]);
         setDailyQuest({
             text: DAILY_QUESTS[0],
             isCompleted: false,
@@ -159,7 +168,9 @@ export const VibeProvider = ({ children }) => {
         setChatMessages,
         logOutfit,
         updateItem,
-        clearData
+        clearData,
+        tomorrowOutfit,
+        setTomorrowOutfit
     }), [
         userProfile,
         inventory,
@@ -170,8 +181,10 @@ export const VibeProvider = ({ children }) => {
         chatMessages,
         completeQuest,
         logOutfit,
+        logOutfit,
         updateItem,
-        clearData
+        clearData,
+        tomorrowOutfit
     ]);
 
     return (
