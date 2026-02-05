@@ -24,23 +24,27 @@ import Logbook from './pages/Logbook';
 
 // ... (RequireProfile remains same)
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-900 text-gray-100">
-        <Routes>
-          <Route path="/" element={
-            <RequireProfile>
-              <DashboardLayout />
-            </RequireProfile>
-          }>
-            <Route index element={<DashboardHome />} />
-            <Route path="inventory" element={<InventoryPage />} />
-            <Route path="logbook" element={<Logbook />} />
-          </Route>
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={
+              <RequireProfile>
+                <DashboardLayout />
+              </RequireProfile>
+            }>
+              <Route index element={<DashboardHome />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="logbook" element={<Logbook />} />
+            </Route>
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+          </Routes>
+        </ErrorBoundary>
         <Toaster position="top-right" theme="dark" />
       </div>
     </BrowserRouter>

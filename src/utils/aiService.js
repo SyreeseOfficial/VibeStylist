@@ -86,3 +86,29 @@ export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHi
         throw error;
     }
 };
+
+export const testApiKeyConnection = async (apiKey) => {
+    try {
+        const response = await fetch(`${API_ENDPOINTS.GEMINI_GENERATE}?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: "Hello" }]
+                }]
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error?.message || `Error: ${response.status} ${response.statusText}`);
+        }
+
+        return true;
+    } catch (error) {
+        throw error;
+    }
+};

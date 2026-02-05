@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { useNavigate } from 'react-router-dom';
 import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw } from 'lucide-react';
+import ConfirmationModal from '../components/ConfirmationModal';
+import { testApiKeyConnection } from '../utils/aiService';
 
 const SettingsPage = () => {
     const { apiKey, setApiKey, clearData, location, setLocation } = useVibe();
     const [inputKey, setInputKey] = useState(apiKey);
     const [inputLocation, setInputLocation] = useState(location);
     const [saved, setSaved] = useState(false);
+    const [showWipeModal, setShowWipeModal] = useState(false);
     const navigate = useNavigate();
 
     // Testing State
@@ -30,24 +33,7 @@ const SettingsPage = () => {
         setTestError(null);
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${inputKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: "Hello" }]
-                    }]
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error?.message || `Error: ${response.status} ${response.statusText}`);
-            }
-
+            await testApiKeyConnection(inputKey);
             setTestSuccess(true);
         } catch (error) {
             setTestError(error.message);
@@ -57,10 +43,7 @@ const SettingsPage = () => {
     };
 
     const handleClear = () => {
-        if (confirm('Are you sure you want to wipe all data? This cannot be undone.')) {
-            clearData();
-            setInputKey('');
-        }
+        setShowWipeModal(true);
     };
 
     const handleExport = () => {
@@ -220,6 +203,20 @@ const SettingsPage = () => {
                     </button>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={showWipeModal}
+                title="Wipe All Data"
+                message="Are you sure you want to wipe all data? This includes your profile, inventory, and outfit logs. This cannot be undone."
+                onConfirm={() => {
+                    clearData();
+                    setInputKey('');
+                    setShowWipeModal(false);
+                }}
+                onCancel={() => setShowWipeModal(false)}
+                confirmText="Wipe Everything"
+                isDanger={true}
+            />
         </div>
     );
 };

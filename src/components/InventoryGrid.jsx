@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown } from 'lucide-react';
+import ConfirmationModal from './ConfirmationModal';
+import { calculateCPW } from '../utils/mathUtils';
 
 const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => {
     const { inventory, setInventory, updateItem } = useVibe();
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
-
+    const [deleteCandidateId, setDeleteCandidateId] = useState(null);
 
     // Filter & Sort State
     const [searchQuery, setSearchQuery] = useState('');
@@ -20,8 +22,13 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => 
     };
 
     const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this item?')) {
-            setInventory(prev => prev.filter(item => item.id !== id));
+        setDeleteCandidateId(id);
+    };
+
+    const confirmDelete = () => {
+        if (deleteCandidateId) {
+            setInventory(prev => prev.filter(item => item.id !== deleteCandidateId));
+            setDeleteCandidateId(null);
         }
     };
 
@@ -247,17 +254,10 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => 
                                         {item.price > 0 && (
                                             <div className="mt-2 text-xs font-mono-system">
                                                 {(() => {
-                                                    const wears = item.wearCount || 0;
-                                                    const cpw = item.price / (wears === 0 ? 1 : wears);
-                                                    const displayCpw = wears === 0 ? parseFloat(item.price) : cpw;
-
-                                                    let cpwColor = 'text-slate-400';
-                                                    if (displayCpw < 1) cpwColor = 'text-green-400';
-                                                    if (displayCpw > 10) cpwColor = 'text-red-400';
-
+                                                    const { value, colorClass } = calculateCPW(item.price, item.wearCount);
                                                     return (
-                                                        <span className={cpwColor}>
-                                                            ${displayCpw.toFixed(2)} / wear
+                                                        <span className={colorClass}>
+                                                            ${value.toFixed(2)} / wear
                                                         </span>
                                                     );
                                                 })()}
@@ -309,8 +309,19 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems }) => 
                     ))
                 )}
             </div>
+
+            <ConfirmationModal
+                isOpen={!!deleteCandidateId}
+                title="Delete Item"
+                message="Are you sure you want to delete this item from your inventory? This action cannot be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteCandidateId(null)}
+                confirmText="Delete"
+                isDanger={true}
+            />
         </div >
     );
 };
 
 export default InventoryGrid;
+

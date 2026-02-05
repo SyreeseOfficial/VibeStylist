@@ -7,6 +7,7 @@ import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
 import { STYLES } from '../utils/styles';
+import ConfirmationModal from './ConfirmationModal';
 
 const ChatInterface = () => {
     const { apiKey, userProfile, inventory, chatMessages, setChatMessages } = useVibe();
@@ -15,6 +16,7 @@ const ChatInterface = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [showClearModal, setShowClearModal] = useState(false);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -99,11 +101,7 @@ const ChatInterface = () => {
                 </div>
                 {chatMessages.length > 0 && (
                     <button
-                        onClick={() => {
-                            if (confirm('Clear chat history? This will end the current session.')) {
-                                setChatMessages([]);
-                            }
-                        }}
+                        onClick={() => setShowClearModal(true)}
                         className={STYLES.BUTTON.DANGER}
                         title="Clear Chat & End Session"
                     >
@@ -144,6 +142,19 @@ const ChatInterface = () => {
                 setSelectedImage={setSelectedImage}
                 isLoading={isLoading}
                 onSend={submitMessage}
+            />
+
+            <ConfirmationModal
+                isOpen={showClearModal}
+                title="Clear Chat History"
+                message="Are you sure you want to clear the chat history? This will end the current session."
+                onConfirm={() => {
+                    setChatMessages([]);
+                    setShowClearModal(false);
+                }}
+                onCancel={() => setShowClearModal(false)}
+                confirmText="Clear Chat"
+                isDanger={true}
             />
         </div>
     );
