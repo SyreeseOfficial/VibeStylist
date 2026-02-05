@@ -19,7 +19,7 @@ const WeatherWidget = () => {
 
     if (loading) {
         return (
-            <div className="bg-gray-800/40 border border-gray-700 rounded-xl p-4 h-[120px] flex items-center justify-center">
+            <div className="bg-gray-800/40 border border-gray-700 rounded-xl p-4 min-h-[120px] flex items-center justify-center">
                 <Loader2 size={24} className="text-blue-400 animate-spin" />
             </div>
         );
@@ -27,7 +27,7 @@ const WeatherWidget = () => {
 
     if (error) {
         return (
-            <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-4 h-[120px] flex flex-col items-center justify-center text-center">
+            <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-4 min-h-[120px] flex flex-col items-center justify-center text-center">
                 <MapPinOff size={24} className="text-red-400 mb-2" />
                 <p className="text-xs text-red-300">{error}</p>
                 <p className="text-[10px] text-red-400/70 mt-1">Check Permissions</p>
@@ -36,7 +36,7 @@ const WeatherWidget = () => {
     }
 
     return (
-        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-xl p-4 text-white relative overflow-hidden h-[120px] flex flex-col justify-between">
+        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-xl p-4 text-white relative overflow-hidden min-h-[120px] flex flex-col justify-between">
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-sm font-semibold text-blue-200 uppercase tracking-widest">Current Location</h3>

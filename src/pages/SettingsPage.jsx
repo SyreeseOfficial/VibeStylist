@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft } from 'lucide-react';
+import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin } from 'lucide-react';
 
 const SettingsPage = () => {
-    const { apiKey, setApiKey, clearData } = useVibe();
+    const { apiKey, setApiKey, clearData, location, setLocation } = useVibe();
     const [inputKey, setInputKey] = useState(apiKey);
+    const [inputLocation, setInputLocation] = useState(location);
     const [saved, setSaved] = useState(false);
     const navigate = useNavigate();
 
@@ -16,6 +17,7 @@ const SettingsPage = () => {
 
     const handleSave = () => {
         setApiKey(inputKey);
+        setLocation(inputLocation);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -127,6 +129,23 @@ const SettingsPage = () => {
                         <p className="text-xs text-slate-500 mt-2">
                             Your key is stored locally in your browser and used only for AI requests.
                         </p>
+                        {/* Location Section */}
+                        <div className="pt-4 border-t border-slate-700">
+                            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                <MapPin size={16} />
+                                Weather Location
+                            </label>
+                            <input
+                                type="text"
+                                value={inputLocation}
+                                onChange={(e) => setInputLocation(e.target.value)}
+                                placeholder="City or Zip Code (e.g. New York, 90210)"
+                                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            />
+                            <p className="text-xs text-slate-500 mt-2">
+                                Leave blank to use automatic browser geolocation.
+                            </p>
+                        </div>
                     </div>
 
                     <button

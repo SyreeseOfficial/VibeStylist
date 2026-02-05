@@ -26,6 +26,7 @@ export const VibeProvider = ({ children }) => {
     const [inventory, setInventory] = useState(() => loadState('inventory', []));
     const [outfitLogs, setOutfitLogs] = useState(() => loadState('outfitLogs', []));
     const [apiKey, setApiKey] = useState(() => loadState('apiKey', ''));
+    const [location, setLocation] = useState(() => loadState('location', ''));
 
     // Daily Quest State
     const [dailyQuest, setDailyQuest] = useState(() => loadState('dailyQuest', {
@@ -77,6 +78,10 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('apiKey', JSON.stringify(apiKey));
     }, [apiKey]);
+
+    useEffect(() => {
+        localStorage.setItem('location', JSON.stringify(location));
+    }, [location]);
 
     useEffect(() => {
         localStorage.setItem('dailyQuest', JSON.stringify(dailyQuest));
@@ -143,6 +148,8 @@ export const VibeProvider = ({ children }) => {
         setOutfitLogs,
         apiKey,
         setApiKey,
+        location,
+        setLocation,
         dailyQuest,
         completeQuest,
         chatMessages,
