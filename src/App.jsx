@@ -1,4 +1,5 @@
 import React from 'react';
+import { Toaster } from 'sonner';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import SettingsPage from './pages/SettingsPage';
 import DashboardLayout from './components/DashboardLayout';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/onboarding" element={<Onboarding />} />
         </Routes>
+        <Toaster position="top-right" theme="dark" />
       </div>
     </BrowserRouter>
   );

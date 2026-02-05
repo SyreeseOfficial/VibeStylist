@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Link, Outlet } from 'react-router-dom';
-import { Home, Settings, Shirt, User } from 'lucide-react';
+import { Home, Settings, Shirt, User, Menu, X, BarChart2 } from 'lucide-react';
 import ContextPanel from './ContextPanel';
 import StyleRadar from './StyleRadar';
 import LevelUpModal from './LevelUpModal';
@@ -9,6 +9,8 @@ import LevelUpModal from './LevelUpModal';
 const DashboardLayout = () => {
     const { userProfile, setUserProfile, inventory } = useVibe();
     const [showLevelModal, setShowLevelModal] = useState(false);
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const [isMobileContextOpen, setIsMobileContextOpen] = useState(false);
 
     // Calculate current level
     const currentLevel = Math.floor((userProfile?.xp || 0) / 1000) + 1;
@@ -33,8 +35,29 @@ const DashboardLayout = () => {
 
     return (
         <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
-            {/* Left Sidebar (20%) */}
-            <aside className="w-[20%] border-r border-gray-800 p-4 flex flex-col min-w-[200px]">
+            {/* Mobile Overlay */}
+            {(isMobileNavOpen || isMobileContextOpen) && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={() => {
+                        setIsMobileNavOpen(false);
+                        setIsMobileContextOpen(false);
+                    }}
+                />
+            )}
+
+            {/* Left Sidebar */}
+            <aside className={`
+                fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 p-4 flex flex-col 
+                transform transition-transform duration-300 ease-in-out
+                md:relative md:translate-x-0 md:w-[20%] md:min-w-[200px]
+                ${isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
+                <div className="md:hidden absolute top-2 right-2 z-50">
+                    <button onClick={() => setIsMobileNavOpen(false)} className="p-2 text-gray-400 hover:text-white">
+                        <X size={20} />
+                    </button>
+                </div>
                 <div className="flex items-center gap-2 mb-8 px-2">
                     <span className="text-2xl">✨</span>
                     <h1 className="text-xl font-bold tracking-tight">VibeStylist</h1>
@@ -108,13 +131,30 @@ const DashboardLayout = () => {
                 </div>
             </aside>
 
-            {/* Main Stage (50%) */}
-            <main className="w-[50%] flex flex-col relative bg-gray-900/50">
-                <Outlet />
+            {/* Main Stage */}
+            <main className="flex-1 flex flex-col relative bg-gray-900/50 w-full md:w-[50%] overflow-hidden">
+                {/* Mobile Header */}
+                <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900 shrink-0">
+                    <button onClick={() => setIsMobileNavOpen(true)} className="p-2 -ml-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition">
+                        <Menu size={24} />
+                    </button>
+                    <span className="font-bold text-lg tracking-tight">VibeStylist</span>
+                    <button onClick={() => setIsMobileContextOpen(true)} className="p-2 -mr-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition">
+                        <BarChart2 size={24} />
+                    </button>
+                </div>
+                <div className="flex-1 overflow-auto relative">
+                    <Outlet />
+                </div>
             </main>
 
-            {/* Context Panel (30%) */}
-            <ContextPanel />
+            {/* Context Panel */}
+            <ContextPanel className={`
+                fixed inset-y-0 right-0 z-50 w-80 bg-gray-900
+                transform transition-transform duration-300 ease-in-out
+                md:relative md:translate-x-0 md:w-[30%] md:bg-transparent
+                ${isMobileContextOpen ? 'translate-x-0' : 'translate-x-full'}
+            `} />
 
             {/* Level Up Modal */}
             {showLevelModal && (

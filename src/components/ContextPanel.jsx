@@ -4,13 +4,13 @@ import GachaBox from './GachaBox';
 import QuestWidget from './QuestWidget';
 import WeatherWidget from './WeatherWidget';
 
-const ContextPanel = () => {
+const ContextPanel = ({ className = "" }) => {
     const { chatMessages } = useVibe();
     const isChatting = chatMessages.length > 0;
 
     if (isChatting) {
         return (
-            <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto flex flex-col">
+            <aside className={`border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto flex flex-col ${className}`}>
                 <h2 className="text-lg font-semibold mb-4 text-gray-200">Context</h2>
 
                 <div className="p-4 rounded-xl bg-gray-800/30 border border-gray-700/30 mb-4 animate-in fade-in">
@@ -34,7 +34,7 @@ const ContextPanel = () => {
     }
 
     return (
-        <aside className="w-[30%] border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto">
+        <aside className={`border-l border-gray-800 p-6 bg-gray-900/30 overflow-y-auto ${className}`}>
             <h2 className="text-lg font-semibold mb-4 text-gray-200">Today's Vibe</h2>
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                 <WeatherWidget />
