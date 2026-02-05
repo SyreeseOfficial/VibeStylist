@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin } from 'lucide-react';
+import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw } from 'lucide-react';
 
 const SettingsPage = () => {
     const { apiKey, setApiKey, clearData, location, setLocation } = useVibe();
@@ -61,6 +61,25 @@ const SettingsPage = () => {
             clearData();
             setInputKey('');
         }
+    };
+
+    const handleExport = () => {
+        const data = {
+            userProfile: JSON.parse(localStorage.getItem('userProfile') || '{}'),
+            inventory: JSON.parse(localStorage.getItem('inventory') || '[]'),
+            outfitLogs: JSON.parse(localStorage.getItem('outfitLogs') || '[]'),
+            apiKey: JSON.parse(localStorage.getItem('apiKey') || '""'),
+            location: JSON.parse(localStorage.getItem('location') || '""')
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vibestylist-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -155,6 +174,35 @@ const SettingsPage = () => {
                         <Save size={18} />
                         {saved ? 'Saved!' : 'Save Key'}
                     </button>
+                </div>
+
+                {/* App & Data Section */}
+                <div className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 space-y-4">
+                    <h2 className="text-lg font-semibold text-white">App Preferences</h2>
+
+                    <div className="space-y-3">
+                        <button
+                            onClick={() => navigate('/onboarding')}
+                            className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition group"
+                        >
+                            <span className="flex items-center gap-3">
+                                <RefreshCw size={18} className="text-blue-400 group-hover:rotate-180 transition-transform duration-500" />
+                                Redo Style Interview
+                            </span>
+                            <span className="text-xs text-slate-400">Update your vibe profile</span>
+                        </button>
+
+                        <button
+                            onClick={handleExport}
+                            className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition"
+                        >
+                            <span className="flex items-center gap-3">
+                                <Download size={18} className="text-green-400" />
+                                Export Data Backup
+                            </span>
+                            <span className="text-xs text-slate-400">Download JSON</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Danger Zone */}

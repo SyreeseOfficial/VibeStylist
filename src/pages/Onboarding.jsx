@@ -18,7 +18,7 @@ const Onboarding = () => {
     const handleBack = () => setStep(prev => prev - 1);
 
     const handleSave = () => {
-        setUserProfile(formData);
+        setUserProfile(prev => ({ ...prev, ...formData }));
         navigate('/');
     };
 

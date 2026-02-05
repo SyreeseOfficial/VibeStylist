@@ -42,6 +42,9 @@ const ChatInterface = () => {
 
     useEffect(() => {
         scrollToBottom();
+        // Double check scroll after render to ensure new content sizes are accounted for
+        const timeout = setTimeout(scrollToBottom, 100);
+        return () => clearTimeout(timeout);
     }, [chatMessages, isLoading, selectedImage]);
 
     const handleFileSelect = async (e) => {
