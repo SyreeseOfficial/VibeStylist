@@ -78,7 +78,7 @@ const DashboardLayout = () => {
                             </div>
                         );
                     })()}
-                    })()}
+
 
                     {/* Style Radar */}
                     <StyleRadar />
