@@ -226,66 +226,68 @@ export const VibeProvider = ({ children }) => {
         setApiKey('');
         setTomorrowOutfit([]);
         setWishlist([]);
-        isCompleted: false,
+        setDailyQuest({
+            text: DAILY_QUESTS[0],
+            isCompleted: false,
             date: new Date().toDateString()
-    });
-    setBudget(0);
-}, []);
+        });
+        setBudget(0);
+    }, []);
 
-const value = useMemo(() => ({
-    userProfile,
-    setUserProfile,
-    inventory,
-    setInventory,
-    outfitLogs,
-    setOutfitLogs,
-    apiKey,
-    setApiKey,
-    location,
-    setLocation,
-    dailyQuest,
-    completeQuest,
-    chatMessages,
-    setChatMessages,
-    logOutfit,
-    updateItem,
-    clearData,
-    tomorrowOutfit,
-    tomorrowOutfit,
-    setTomorrowOutfit,
-    wishlist,
-    setWishlist,
-    addToWishlist,
-    removeFromWishlist,
-    budget,
-    setBudget,
-    buyItem
-}), [
-    userProfile,
-    inventory,
-    outfitLogs,
-    apiKey,
-    location,
-    dailyQuest,
-    chatMessages,
-    completeQuest,
-    logOutfit,
-    logOutfit,
-    updateItem,
-    clearData,
-    updateItem,
-    clearData,
-    tomorrowOutfit,
-    wishlist,
-    addToWishlist,
-    removeFromWishlist,
-    budget,
-    buyItem
-]);
+    const value = useMemo(() => ({
+        userProfile,
+        setUserProfile,
+        inventory,
+        setInventory,
+        outfitLogs,
+        setOutfitLogs,
+        apiKey,
+        setApiKey,
+        location,
+        setLocation,
+        dailyQuest,
+        completeQuest,
+        chatMessages,
+        setChatMessages,
+        logOutfit,
+        updateItem,
+        clearData,
+        tomorrowOutfit,
+        tomorrowOutfit,
+        setTomorrowOutfit,
+        wishlist,
+        setWishlist,
+        addToWishlist,
+        removeFromWishlist,
+        budget,
+        setBudget,
+        buyItem
+    }), [
+        userProfile,
+        inventory,
+        outfitLogs,
+        apiKey,
+        location,
+        dailyQuest,
+        chatMessages,
+        completeQuest,
+        logOutfit,
+        logOutfit,
+        updateItem,
+        clearData,
+        updateItem,
+        clearData,
+        tomorrowOutfit,
+        wishlist,
+        addToWishlist,
+        removeFromWishlist,
+        budget,
+        buyItem
+    ]);
 
-return (
-    <VibeContext.Provider value={value}>
-        {children}
-    </VibeContext.Provider>
-);
+    return (
+        <VibeContext.Provider value={value}>
+            {children}
+        </VibeContext.Provider>
+    );
 };
