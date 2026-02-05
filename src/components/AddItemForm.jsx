@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Camera, X } from 'lucide-react';
+import { resizeImage } from '../utils/imageUtils';
 
 const AddItemForm = () => {
     const { setInventory } = useVibe();
@@ -11,6 +12,23 @@ const AddItemForm = () => {
         isClean: true
     });
     const [showSuccess, setShowSuccess] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+
+    const handleImageSelect = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                const resized = await resizeImage(file);
+                setImagePreview(resized);
+            } catch (err) {
+                console.error("Error resizing image", err);
+            }
+        }
+    };
+
+    const clearImage = () => {
+        setImagePreview(null);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -18,6 +36,7 @@ const AddItemForm = () => {
         const newItem = {
             id: Date.now().toString(),
             ...formData,
+            image: imagePreview,
             wearCount: 0,
             dateAdded: new Date().toISOString()
         };
@@ -26,6 +45,7 @@ const AddItemForm = () => {
 
         // Reset form and show success
         setFormData({ name: '', category: 'Top', price: '', isClean: true });
+        setImagePreview(null);
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 2000);
     };
@@ -38,6 +58,44 @@ const AddItemForm = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Image Upload */}
+                <div className="flex justify-center mb-6">
+                    <div className="relative group">
+                        <div
+                            onClick={() => document.getElementById('item-image-upload').click()}
+                            className={`w-32 h-32 rounded-xl border-2 border-dashed flex items-center justify-center cursor-pointer transition overflow-hidden ${imagePreview ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
+                                }`}
+                        >
+                            {imagePreview ? (
+                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center p-4">
+                                    <Camera className="mx-auto text-gray-400 mb-2" size={24} />
+                                    <span className="text-xs text-gray-400">Add Photo</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {imagePreview && (
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); clearImage(); }}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+
+                        <input
+                            id="item-image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageSelect}
+                            className="hidden"
+                        />
+                    </div>
+                </div>
+
                 {/* Item Name */}
                 <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">Item Name</label>

@@ -5,6 +5,7 @@ import { generateStyleAdvice } from '../utils/aiService';
 import useWeather from '../hooks/useWeather';
 import ReactMarkdown from 'react-markdown';
 import EmptyState from './EmptyState';
+import { resizeImage } from '../utils/imageUtils';
 
 const ChatInterface = () => {
     const { apiKey, userProfile, inventory, chatMessages, setChatMessages } = useVibe();
@@ -43,14 +44,16 @@ const ChatInterface = () => {
         scrollToBottom();
     }, [chatMessages, isLoading, selectedImage]);
 
-    const handleFileSelect = (e) => {
+    const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const resizedImage = await resizeImage(file);
+                setSelectedImage(resizedImage);
+            } catch (error) {
+                console.error("Error resizing image:", error);
+                // Optionally handle error UI
+            }
         }
     };
 

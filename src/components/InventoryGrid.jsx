@@ -193,62 +193,68 @@ const InventoryGrid = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div>
-                                    <h3 className="font-medium text-white">{item.name}</h3>
-                                    <div className="flex flex-wrap items-center gap-2 mt-1">
-                                        <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">
-                                            {item.category}
-                                        </span>
-                                        {/* Wear Count Badges */}
-                                        {(!item.wearCount || item.wearCount < 5) && (
-                                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-blue-500/30 text-blue-400 font-mono-system">New</span>
-                                        )}
-                                        {item.wearCount >= 20 && item.wearCount < 50 && (
-                                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 text-purple-400 font-mono-system">Broken In</span>
-                                        )}
-                                        {item.wearCount >= 50 && (
-                                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 text-yellow-400 font-medium font-mono-system shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-pulse">Legendary</span>
-                                        )}
-                                    </div>
-
-                                    {/* Cost Per Wear */}
-                                    {item.price > 0 && (
-                                        <div className="mt-2 text-xs font-mono-system">
-                                            {(() => {
-                                                const wears = item.wearCount || 0;
-                                                const cpw = item.price / (wears === 0 ? 1 : wears); // Avoid /0, assume 1 wear effectively for first calc, or just show full price if 0 wears usually.
-                                                // Actually if 0 wears, you paid full price for 0 utility. 
-                                                // Let's stick to simple: if 0 wears, use 1 to show price, or just display price.
-                                                // Prompt said: "display 'Cost Per Wear' (Price / Wear Count)"
-                                                const displayCpw = wears === 0 ? parseFloat(item.price) : cpw;
-
-                                                let cpwColor = 'text-slate-400';
-                                                if (displayCpw < 1) cpwColor = 'text-green-400';
-                                                if (displayCpw > 10) cpwColor = 'text-red-400';
-
-                                                return (
-                                                    <span className={cpwColor}>
-                                                        ${displayCpw.toFixed(2)} / wear
-                                                    </span>
-                                                );
-                                            })()}
+                                <div className="flex gap-4 items-start">
+                                    {/* Image Thumbnail */}
+                                    {item.image && (
+                                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-700 bg-gray-900">
+                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                         </div>
                                     )}
 
-                                    <div className="mt-3 flex items-center gap-2">
-                                        <button
-                                            onClick={() => toggleClean(item.id)}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${item.isClean
-                                                ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50'
-                                                : 'bg-yellow-900/30 text-yellow-500 hover:bg-yellow-900/50'
-                                                }`}
-                                        >
-                                            {item.isClean ? (
-                                                <><Sparkles size={12} /> Clean</>
-                                            ) : (
-                                                <><Droplets size={12} /> Dirty</>
+                                    <div>
+                                        <h3 className="font-medium text-white">{item.name}</h3>
+                                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                                            <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">
+                                                {item.category}
+                                            </span>
+                                            {/* Wear Count Badges */}
+                                            {(!item.wearCount || item.wearCount < 5) && (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-blue-500/30 text-blue-400 font-mono-system">New</span>
                                             )}
-                                        </button>
+                                            {item.wearCount >= 20 && item.wearCount < 50 && (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 text-purple-400 font-mono-system">Broken In</span>
+                                            )}
+                                            {item.wearCount >= 50 && (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 text-yellow-400 font-medium font-mono-system shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-pulse">Legendary</span>
+                                            )}
+                                        </div>
+
+                                        {/* Cost Per Wear */}
+                                        {item.price > 0 && (
+                                            <div className="mt-2 text-xs font-mono-system">
+                                                {(() => {
+                                                    const wears = item.wearCount || 0;
+                                                    const cpw = item.price / (wears === 0 ? 1 : wears);
+                                                    const displayCpw = wears === 0 ? parseFloat(item.price) : cpw;
+
+                                                    let cpwColor = 'text-slate-400';
+                                                    if (displayCpw < 1) cpwColor = 'text-green-400';
+                                                    if (displayCpw > 10) cpwColor = 'text-red-400';
+
+                                                    return (
+                                                        <span className={cpwColor}>
+                                                            ${displayCpw.toFixed(2)} / wear
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </div>
+                                        )}
+
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <button
+                                                onClick={() => toggleClean(item.id)}
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${item.isClean
+                                                    ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50'
+                                                    : 'bg-yellow-900/30 text-yellow-500 hover:bg-yellow-900/50'
+                                                    }`}
+                                            >
+                                                {item.isClean ? (
+                                                    <><Sparkles size={12} /> Clean</>
+                                                ) : (
+                                                    <><Droplets size={12} /> Dirty</>
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
