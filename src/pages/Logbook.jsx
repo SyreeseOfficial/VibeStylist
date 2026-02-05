@@ -1,9 +1,34 @@
 import React from 'react';
 import { useVibe } from '../context/VibeContext';
-import { Calendar, Tag, Star, Award } from 'lucide-react';
+import { Calendar, Tag, Star, Award, RotateCcw } from 'lucide-react';
 
 const Logbook = () => {
-    const { outfitLogs } = useVibe();
+    const { outfitLogs, logOutfit, inventory } = useVibe();
+
+    const handleWearAgain = (log) => {
+        if (!log.items || log.items.length === 0) return;
+
+        const itemIds = log.items.map(i => i.id);
+
+        // Find current stats of these items in inventory
+        // (Log stores a snapshot, but we need current isClean status)
+        const currentItems = inventory.filter(i => itemIds.includes(i.id));
+
+        const dirtyItems = currentItems.filter(i => !i.isClean);
+
+        if (dirtyItems.length > 0) {
+            const names = dirtyItems.map(i => i.name).join(', ');
+            if (!confirm(`Wait! The following items are marked as dirty: ${names}. \n\nDo you want to wear them anyway?`)) {
+                return;
+            }
+        }
+
+        // Re-log the outfit
+        logOutfit(itemIds);
+
+        // Optional: Scroll to top or show success feedback
+        // alert("Outfit re-logged! +100 XP"); 
+    };
 
     if (outfitLogs.length === 0) {
         return (
@@ -65,6 +90,14 @@ const Logbook = () => {
                                         Quest Complete
                                     </div>
                                 )}
+                                <button
+                                    onClick={() => handleWearAgain(log)}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium border border-blue-500/30"
+                                    title="Wear this outfit again"
+                                >
+                                    <RotateCcw size={14} />
+                                    Wear Again
+                                </button>
                             </div>
                         </div>
 
