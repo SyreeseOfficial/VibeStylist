@@ -69,30 +69,28 @@ const WishlistPage = () => {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-8">
-                {/* Top Section: Add Item Form & Stats */}
-                <div className="w-full space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column: Add Item Form */}
+                <div className="lg:col-span-1">
                     <AddItemForm mode="wishlist" />
 
-                    <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                    <div className="mt-6 bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
                         <h3 className="text-gray-400 text-sm font-medium mb-2">Wishlist Stats</h3>
-                        <div className="flex items-center gap-4">
-                            <div className="bg-gray-900 p-3 rounded-lg flex-1">
-                                <p className="text-2xl font-bold text-white">{wishlist.length}</p>
-                                <p className="text-xs text-gray-500">Items Wanted</p>
-                            </div>
-                            <div className="bg-gray-900 p-3 rounded-lg flex-1">
-                                <p className="text-2xl font-bold text-pink-500">
-                                    ${wishlist.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0).toFixed(2)}
-                                </p>
-                                <p className="text-xs text-gray-500">Total Value</p>
-                            </div>
+                        <div className="bg-gray-900 p-3 rounded-lg">
+                            <p className="text-2xl font-bold text-white">{wishlist.length}</p>
+                            <p className="text-xs text-gray-500">Items Wanted</p>
+                        </div>
+                        <div className="bg-gray-900 p-3 rounded-lg mt-2">
+                            <p className="text-2xl font-bold text-pink-500">
+                                ${wishlist.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500">Total Value</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Section: Wishlist Grid */}
-                <div className="w-full">
+                {/* Right Column: Wishlist Grid */}
+                <div className="lg:col-span-2">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-white">Desired Items</h2>
                         <button
