@@ -12,8 +12,28 @@ const Onboarding = () => {
         fitPreference: 50, // 0: Tight, 100: Loose
         colorPalette: 50,  // 0: Neutral, 100: Vibrant
         utilityVsAesthetic: 50, // 0: Utility, 100: Aesthetic
-        budget: 0 // Default budget
+        budget: 0, // Default budget
+        textures: [], // Multi-select
+        accessoryVibe: 'Functional' // Single select
     });
+
+    const TEXTURE_OPTIONS = ['Denim', 'Leather', 'Cotton', 'Tech/Synthetic', 'Wool', 'Silk/Satin'];
+    const ACCESSORY_OPTIONS = [
+        { id: 'Minimalist', label: 'Minimalist', desc: 'No clutter, just essentials.' },
+        { id: 'Functional', label: 'Functional', desc: 'Watches, bags, belts.' },
+        { id: 'Statement', label: 'Statement', desc: 'Jewelry, hats, scarves.' }
+    ];
+
+    const toggleTexture = (texture) => {
+        setFormData(prev => {
+            const current = prev.textures || [];
+            if (current.includes(texture)) {
+                return { ...prev, textures: current.filter(t => t !== texture) };
+            } else {
+                return { ...prev, textures: [...current, texture] };
+            }
+        });
+    };
 
     const handleNext = () => setStep(prev => prev + 1);
     const handleBack = () => setStep(prev => prev - 1);
@@ -31,7 +51,7 @@ const Onboarding = () => {
                 <div className="bg-gray-700 h-2 w-full">
                     <div
                         className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                        style={{ width: `${(step / 3) * 100}%` }}
+                        style={{ width: `${(step / 5) * 100}%` }}
                     />
                 </div>
 
@@ -41,10 +61,12 @@ const Onboarding = () => {
                         <h2 className="text-2xl font-bold mb-2">
                             {step === 1 && "Let's get to know you"}
                             {step === 2 && "Define your Vibe"}
-                            {step === 3 && "Review & Save"}
+                            {step === 3 && "Fabric & Feel"}
+                            {step === 4 && "Accessorize"}
+                            {step === 5 && "Review & Save"}
                         </h2>
                         <p className="text-gray-400 text-sm">
-                            Step {step} of 3
+                            Step {step} of 5
                         </p>
                     </div>
 
@@ -147,8 +169,56 @@ const Onboarding = () => {
                         </div>
                     )}
 
-                    {/* Step 3: Summary */}
+                    {/* Step 3: Textures */}
                     {step === 3 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Preferred Fabrics</h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                {TEXTURE_OPTIONS.map(texture => (
+                                    <button
+                                        key={texture}
+                                        onClick={() => toggleTexture(texture)}
+                                        className={`p-4 rounded-xl border transition text-left ${formData.textures?.includes(texture)
+                                            ? 'bg-blue-600 border-blue-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {texture}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 4: Accessories */}
+                    {step === 4 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Accessory Style</h3>
+                            <div className="space-y-3">
+                                {ACCESSORY_OPTIONS.map(option => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => setFormData({ ...formData, accessoryVibe: option.id })}
+                                        className={`w-full p-4 rounded-xl border transition flex items-center justify-between ${formData.accessoryVibe === option.id
+                                            ? 'bg-purple-600 border-purple-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        <div className="text-left">
+                                            <div className="font-semibold">{option.label}</div>
+                                            <div className={`text-sm ${formData.accessoryVibe === option.id ? 'text-purple-200' : 'text-gray-400'}`}>
+                                                {option.desc}
+                                            </div>
+                                        </div>
+                                        {formData.accessoryVibe === option.id && <Check size={20} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 5: Summary */}
+                    {step === 5 && (
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-gray-900 rounded-xl p-6 border border-gray-700/50">
                                 <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-4">Profile Summary</h3>
@@ -169,6 +239,14 @@ const Onboarding = () => {
                                     <div className="flex justify-between items-center pb-3 border-b border-gray-800">
                                         <span className="text-gray-400">Style Priority</span>
                                         <span className="font-semibold">{formData.utilityVsAesthetic}% Aesthetic</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Fabrics</span>
+                                        <span className="font-semibold text-right text-sm">{(formData.textures || []).join(', ') || 'None'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Accessories</span>
+                                        <span className="font-semibold">{formData.accessoryVibe}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-400">Monthly Budget</span>
@@ -193,7 +271,7 @@ const Onboarding = () => {
                             </button>
                         )}
 
-                        {step < 3 ? (
+                        {step < 5 ? (
                             <button
                                 onClick={handleNext}
                                 disabled={step === 1 && !formData.name.trim()}

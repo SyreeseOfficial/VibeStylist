@@ -54,7 +54,7 @@ const DashboardLayout = () => {
             />
 
             {/* Main Stage */}
-            <main className="flex-1 flex flex-col relative bg-gray-900/50 w-full md:w-[50%] overflow-hidden">
+            <main className="flex-1 flex flex-col relative bg-gray-900/50 w-full md:w-[65%] overflow-hidden">
                 <MobileHeader
                     setIsMobileNavOpen={setIsMobileNavOpen}
                     setIsMobileContextOpen={setIsMobileContextOpen}
@@ -70,7 +70,7 @@ const DashboardLayout = () => {
             <ContextPanel className={`
                 fixed inset-y-0 right-0 z-50 w-80 bg-gray-900
                 transform transition-transform duration-300 ease-in-out
-                md:relative md:translate-x-0 md:w-[30%] md:bg-transparent
+                md:relative md:translate-x-0 md:w-[20%] md:bg-transparent
                 ${isMobileContextOpen ? 'translate-x-0' : 'translate-x-full'}
             `} />
 

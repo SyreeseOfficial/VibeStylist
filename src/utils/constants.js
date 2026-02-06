@@ -59,7 +59,11 @@ export const DAILY_QUESTS = [
 
 export const XP_REWARDS = {
     LOG_OUTFIT: 100,
-    COMPLETE_QUEST: 150
+    COMPLETE_QUEST: 150,
+    ADD_ITEM: 50,
+    LAUNDRY_ITEM: 10,
+    LAUNDRY_MAX: 200,
+    UPDATE_PROFILE: 20
 };
 
 export const LOCAL_STORAGE_KEYS = {

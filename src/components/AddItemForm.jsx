@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { Plus, Check, Camera, X } from 'lucide-react';
 import { resizeImage } from '../utils/imageUtils';
+import { XP_REWARDS } from '../utils/constants';
 
 const AddItemForm = ({ mode = 'inventory' }) => {
-    const { setInventory, addToWishlist } = useVibe();
+    const { setInventory, addToWishlist, setUserProfile } = useVibe();
     const [formData, setFormData] = useState({
         name: '',
         category: 'Top',
@@ -46,6 +47,11 @@ const AddItemForm = ({ mode = 'inventory' }) => {
             addToWishlist(newItem);
         } else {
             setInventory(prev => [...prev, newItem]);
+            // Award XP for adding item
+            setUserProfile(prev => ({
+                ...prev,
+                xp: (prev.xp || 0) + XP_REWARDS.ADD_ITEM
+            }));
         }
 
         // Reset form and show success
@@ -166,7 +172,7 @@ const AddItemForm = ({ mode = 'inventory' }) => {
                 >
                     {showSuccess ? (
                         <>
-                            <Check size={18} /> Added!
+                            <Check size={18} /> Added! {mode !== 'wishlist' && `+${XP_REWARDS.ADD_ITEM} XP`}
                         </>
                     ) : (
                         mode === 'wishlist' ? 'Add to Wishlist' : 'Add to Wardrobe'

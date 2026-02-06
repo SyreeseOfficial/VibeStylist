@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { DAILY_QUESTS, XP_REWARDS, LOCAL_STORAGE_KEYS } from '../utils/constants';
 import confetti from 'canvas-confetti';
+import { playSound, SOUNDS } from '../utils/soundEffects';
 
 const VibeContext = createContext();
 
@@ -23,6 +24,9 @@ export const VibeProvider = ({ children }) => {
         const profile = loadState(LOCAL_STORAGE_KEYS.USER_PROFILE, {});
         // Ensure xp exists
         if (profile.xp === undefined) profile.xp = 0;
+        // Ensure defaults for new fields
+        if (profile.soundEffects === undefined) profile.soundEffects = true;
+        if (profile.customPersona === undefined) profile.customPersona = "";
         return profile;
     });
     const [inventory, setInventory] = useState(() => loadState(LOCAL_STORAGE_KEYS.INVENTORY, []));
@@ -146,6 +150,9 @@ export const VibeProvider = ({ children }) => {
             badges: newBadges
         }));
 
+        // Play Sound
+        playSound(SOUNDS.LEVEL_UP, userProfile.soundEffects);
+
         // Create Log Entry
         const newLog = {
             id: Date.now().toString(),
@@ -178,6 +185,9 @@ export const VibeProvider = ({ children }) => {
         if (!dailyQuest.isCompleted) {
             setDailyQuest(prev => ({ ...prev, isCompleted: true }));
             setUserProfile(prev => ({ ...prev, xp: (prev.xp || 0) + XP_REWARDS.COMPLETE_QUEST }));
+
+            // Play Sound
+            playSound(SOUNDS.LEVEL_UP, userProfile.soundEffects);
         }
     }, [dailyQuest.isCompleted]);
 

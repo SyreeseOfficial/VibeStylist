@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw } from 'lucide-react';
+import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw, User, CloudSun, Volume2, VolumeX } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { testApiKeyConnection } from '../utils/aiService';
+import { XP_REWARDS } from '../utils/constants';
 
 const SettingsPage = () => {
     const { apiKey, setApiKey, clearData, location, setLocation, userProfile, setUserProfile } = useVibe();
     const [inputKey, setInputKey] = useState(apiKey);
     const [inputLocation, setInputLocation] = useState(location);
+    const [displayName, setDisplayName] = useState(userProfile?.displayName || userProfile?.name || '');
+    const [persona, setPersona] = useState(userProfile?.customPersona || '');
     const [saved, setSaved] = useState(false);
     const [showWipeModal, setShowWipeModal] = useState(false);
     const navigate = useNavigate();
@@ -21,6 +24,15 @@ const SettingsPage = () => {
     const handleSave = () => {
         setApiKey(inputKey);
         setLocation(inputLocation);
+
+        // Award XP for updating profile (flat reward)
+        setUserProfile(prev => ({
+            ...prev,
+            displayName: displayName, // Save display name
+            customPersona: persona, // Save custom persona
+            xp: (prev.xp || 0) + XP_REWARDS.UPDATE_PROFILE
+        }));
+
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -148,6 +160,41 @@ const SettingsPage = () => {
                                 Leave blank to use automatic browser geolocation.
                             </p>
                         </div>
+
+                        {/* Display Name Section */}
+                        <div className="pt-4 border-t border-slate-700">
+                            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                <User size={16} />
+                                Display Name
+                            </label>
+                            <input
+                                type="text"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                placeholder="What should the AI call you?"
+                                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            />
+                            <p className="text-xs text-slate-500 mt-2">
+                                The AI will use this name to address you.
+                            </p>
+                        </div>
+
+                        {/* Persona Section */}
+                        <div className="pt-4 border-t border-slate-700">
+                            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                <span className="text-lg">🤖</span>
+                                AI Stylist Persona
+                            </label>
+                            <textarea
+                                value={persona}
+                                onChange={(e) => setPersona(e.target.value)}
+                                placeholder="E.g. 'Talk like a Californian surfer', 'Be extremely technical about fabrics', or leave empty for default."
+                                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition min-h-[100px]"
+                            />
+                            <p className="text-xs text-slate-500 mt-2">
+                                Define the personality of your AI stylist. Leave blank to use the default friendly professional vibe.
+                            </p>
+                        </div>
                     </div>
 
                     <button
@@ -155,7 +202,7 @@ const SettingsPage = () => {
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition"
                     >
                         <Save size={18} />
-                        {saved ? 'Saved!' : 'Save Key'}
+                        {saved ? `Saved! +${XP_REWARDS.UPDATE_PROFILE} XP` : 'Save Key'}
                     </button>
                 </div>
 
@@ -174,6 +221,32 @@ const SettingsPage = () => {
                             </span>
                             <span className="text-xs text-white/70">
                                 {userProfile?.sassMode ? 'Enabled (Good luck)' : 'Disabled'}
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setUserProfile(prev => ({ ...prev, showWeather: !prev.showWeather }))}
+                            className={`w-full text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition ${userProfile?.showWeather !== false ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-700 hover:bg-slate-600'}`}
+                        >
+                            <span className="flex items-center gap-3">
+                                <CloudSun size={18} />
+                                Show Weather Widget
+                            </span>
+                            <span className="text-xs text-white/70">
+                                {userProfile?.showWeather !== false ? 'On' : 'Off'}
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setUserProfile(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
+                            className={`w-full text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition ${userProfile?.soundEffects ? 'bg-green-600 hover:bg-green-700' : 'bg-slate-700 hover:bg-slate-600'}`}
+                        >
+                            <span className="flex items-center gap-3">
+                                {userProfile?.soundEffects ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                                Sound Effects
+                            </span>
+                            <span className="text-xs text-white/70">
+                                {userProfile?.soundEffects ? 'On' : 'Off'}
                             </span>
                         </button>
                         <button

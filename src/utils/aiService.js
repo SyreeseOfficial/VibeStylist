@@ -8,10 +8,13 @@ export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHi
     // Filter for clean items only
     const cleanInventory = inventory.filter(item => item.isClean);
 
-    // Construct System Prompt
     const weatherInfo = weatherData ? `${weatherData.temp}°F - ${weatherData.condition}` : "Not available";
 
-    let systemPrompt = SYSTEM_PROMPTS.BASE
+    let basePrompt = userProfile.customPersona && userProfile.customPersona.trim() !== ""
+        ? userProfile.customPersona
+        : SYSTEM_PROMPTS.BASE;
+
+    let systemPrompt = basePrompt
         .replace('{name}', userProfile.name)
         .replace('{fitPreference}', userProfile.fitPreference)
         .replace('{colorPalette}', userProfile.colorPalette)
