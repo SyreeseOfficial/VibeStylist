@@ -70,7 +70,7 @@ const PlannerPage = () => {
     return (
         <div className="space-y-8 pb-20 fade-in p-4 md:p-8">
             {/* Header / Weather */}
-            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-3xl p-8 md:p-10 text-white shadow-lg relative overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div>
                         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
