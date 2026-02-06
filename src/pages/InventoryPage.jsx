@@ -4,9 +4,10 @@ import InventoryGrid from '../components/InventoryGrid';
 import { useVibe } from '../context/VibeContext';
 import { Shirt, WashingMachine, Calendar, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { XP_REWARDS } from '../utils/constants';
 
 const InventoryPage = () => {
-    const { inventory, setInventory, logOutfit } = useVibe();
+    const { inventory, setInventory, logOutfit, setUserProfile } = useVibe();
     const [isSelectionMode, setIsSelectionMode] = React.useState(false);
     const [selectedItems, setSelectedItems] = React.useState([]);
 
@@ -23,7 +24,14 @@ const InventoryPage = () => {
             isClean: true
         })));
 
-        toast.success(`Laundry done! ${dirtyItems.length} items are back in rotation.`);
+        const xpEarned = Math.min(dirtyItems.length * XP_REWARDS.LAUNDRY_ITEM, XP_REWARDS.LAUNDRY_MAX);
+
+        setUserProfile(prev => ({
+            ...prev,
+            xp: (prev.xp || 0) + xpEarned
+        }));
+
+        toast.success(`Laundry done! ${dirtyItems.length} items are back in rotation. +${xpEarned} XP`);
     };
 
     const toggleSelectionMode = () => {
@@ -98,14 +106,14 @@ const InventoryPage = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Add Item Form */}
-                <div className="lg:col-span-1">
+            <div className="flex flex-col gap-8">
+                {/* Top Section: Add Item Form & Stats */}
+                <div className="w-full space-y-6">
                     <AddItemForm />
 
-                    <div className="mt-6 bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                    <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
                         <h3 className="text-gray-400 text-sm font-medium mb-2">Quick Stats</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="bg-gray-900 p-3 rounded-lg">
                                 <p className="text-2xl font-bold text-white">{inventory.length}</p>
                                 <p className="text-xs text-gray-500">Total Items</p>
@@ -120,8 +128,8 @@ const InventoryPage = () => {
                     </div>
                 </div>
 
-                {/* Right Column: Inventory List */}
-                <div className="lg:col-span-2">
+                {/* Bottom Section: Inventory List */}
+                <div className="w-full">
                     <h2 className="text-lg font-semibold text-white mb-4">Your Items</h2>
                     <InventoryGrid
                         isSelectionMode={isSelectionMode}
