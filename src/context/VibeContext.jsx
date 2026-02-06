@@ -1,26 +1,41 @@
 import React, { createContext, useContext, useEffect, useReducer, useMemo, useCallback } from 'react';
-import { DAILY_QUESTS, XP_REWARDS, LOCAL_STORAGE_KEYS } from '../utils/constants';
+import { DAILY_QUESTS, LOCAL_STORAGE_KEYS } from '../utils/constants'; // Removed XP_REWARDS unused import if any
 import confetti from 'canvas-confetti';
 import { playSound, SOUNDS } from '../utils/soundEffects';
-import useLocalStorage from '../hooks/useLocalStorage';
 import { vibeReducer, ACTIONS } from './vibeReducer';
 import { toast } from 'sonner';
 
-const VibeContext = createContext();
+// Split Contexts
+const VibeStateContext = createContext();
+const VibeDispatchContext = createContext();
 
-export const useVibe = () => useContext(VibeContext);
+// Hooks for specific contexts
+export const useVibeState = () => {
+    const context = useContext(VibeStateContext);
+    if (context === undefined) {
+        throw new Error('useVibeState must be used within a VibeProvider');
+    }
+    return context;
+};
+
+export const useVibeDispatch = () => {
+    const context = useContext(VibeDispatchContext);
+    if (context === undefined) {
+        throw new Error('useVibeDispatch must be used within a VibeProvider');
+    }
+    return context;
+};
+
+// Legacy hook for backward compatibility
+export const useVibe = () => {
+    const state = useVibeState();
+    const dispatch = useVibeDispatch();
+    return useMemo(() => ({ ...state, ...dispatch }), [state, dispatch]);
+};
 
 export const VibeProvider = ({ children }) => {
 
     // --- 1. Load Initial State via useLocalStorage ---
-    // We use useLocalStorage for each key to ensure it stays in sync
-    // However, for the reducer, we need a composite initial state.
-    // Stratergy: Load all from useLocalStorage first, then pass to reducer?
-    // OR: Use reducer for logic, but sync each part to useLocalStorage using effects.
-    // Best practice for complex persistence:
-    // Keep source of truth in Reducer state, and use useEffect to write to LS.
-    // Initialization: Custom lazy initializer.
-
     const initializer = () => {
         const load = (key, def) => {
             try {
@@ -53,11 +68,6 @@ export const VibeProvider = ({ children }) => {
     const [state, dispatch] = useReducer(vibeReducer, {}, initializer);
 
     // --- 2. Persistence Effects ---
-    // We could use key-specific effects, or one big one.
-    // Key-specific is safer for performance if state is huge, but here it's fine.
-    // Actually, useLocalStorage hook handles the "write" part if we used it directly.
-    // Since we are using a Reducer, we manually sync changes to LS.
-
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.USER_PROFILE, JSON.stringify(state.userProfile)); }, [state.userProfile]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.INVENTORY, JSON.stringify(state.inventory)); }, [state.inventory]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, JSON.stringify(state.outfitLogs)); }, [state.outfitLogs]);
@@ -70,11 +80,10 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.WISHLIST, JSON.stringify(state.wishlist)); }, [state.wishlist]);
 
     // --- 3. Side Effects Logic (Confetti, Sounds, Toasts) ---
-    // The reducer sets a transient flag '_sideEffect' used here.
     useEffect(() => {
         if (state._sideEffect) {
-            const { type, earnedBadge, count, xp } = state._sideEffect;
-            const soundEnabled = state.userProfile.soundEffects !== false; // Default true
+            const { type, earnedBadge } = state._sideEffect;
+            const soundEnabled = state.userProfile.soundEffects !== false;
 
             if (type === 'LOG_SUCCESS') {
                 playSound(SOUNDS.LEVEL_UP, soundEnabled);
@@ -84,15 +93,9 @@ export const VibeProvider = ({ children }) => {
                 }
             } else if (type === 'QUEST_COMPLETE') {
                 playSound(SOUNDS.LEVEL_UP, soundEnabled);
-            } else if (type === 'LAUNDRY_COMPLETE') {
-                // Laundry specific animation could be triggered here or in UI
-                // toast handled in UI or here? Let's keep UI toasts in UI for now if possible,
-                // but consistency says here.
-                // The hook used to do it.
             }
         }
     }, [state._sideEffect, state.userProfile.soundEffects]);
-
 
     // --- 4. Logic & Handlers (Wrappers for Dispatch) ---
 
@@ -108,125 +111,89 @@ export const VibeProvider = ({ children }) => {
         }
     }, [state.dailyQuest.date]);
 
-    // Public Actions (Memoized to prevent re-renders)
+    // MEMOIZED DISPATCH ACTIONS
+    const dispatchActions = useMemo(() => {
+        const setUserProfile = (payload) => {
+            // We can't access live state here easily for function updates if we want this constant.
+            // BUT, we can make this a thunk if we had middleware, or just pass dispatch exposed.
+            // For now, to keep it simple and memoized:
+            // If payload is function, we can't support it purely in this memo without state dependency.
+            // HOWEVER, we CAN just dispatch the action and let reducer handle it? No, reducer needs pure data usually.
+            // Reverting to the pattern of including state dependency for `setUserProfile` if we really need function support,
+            // OR, better: Consumers should pass the computed value or we accept that setUserProfile changes when state.userProfile changes.
+            // Actually, to make Context split useful, actions shouldn't change when state changes.
+            // The previous implementation of setUserProfile depended on state.userProfile.
+            // Let's change the pattern: The reducer should ideally handle logic, but typical Redux pattern allows pure dispatch.
+            // For now, I will NOT include state dependency here to ensure stability.
+            // Consumers must pass the new value, or we use a functional state update pattern in reducer if supported (it's not currently).
+            // WAIT: The previous code handled functional updates manually.
+            // To keep optimization, I will REMOVE functional update support from this helper OR
+            // I'll leave it but it will require access to state, effectively breaking the split benefit for that one action.
+            // Best approach: Expose raw `dispatch` via `useVibeDispatch` effectively?
+            // Let's stick to the list of helpers but remove the functional update hack dependency if possible,
+            // OR just re-create the object.
+            // Actually, `state.userProfile` is the ONLY dependency that caused churn in `setUserProfile`.
+            // Let's move the functional check to the SITE of call if possible, or just accept that `setUserProfile` might rebuild.
+            // BUT, `setInventory` and others don't need state.
 
-    const setUserProfile = useCallback((payload) => {
-        // Handle function updates: setUserProfile(prev => ...)
-        if (typeof payload === 'function') {
-            // This is tricky with reducer. ideally we pass value.
-            // But to support existing Component code that does setUserProfile(prev => ...),
-            // we need to access current state.
-            // The reducer doesn't support thunks out of the box without middleware.
-            // Hack: calc value here.
-            dispatch({ type: ACTIONS.SET_USER_PROFILE, payload: payload(state.userProfile) });
-        } else {
             dispatch({ type: ACTIONS.SET_USER_PROFILE, payload });
-        }
-    }, [state.userProfile]);
-
-    const setInventory = useCallback((payload) => dispatch({ type: ACTIONS.SET_INVENTORY, payload }), []);
-    const setOutfitLogs = useCallback((payload) => dispatch({ type: ACTIONS.SET_LOGS, payload }), []);
-    const setApiKey = useCallback((payload) => dispatch({ type: ACTIONS.SET_API_KEY, payload }), []);
-    const setLocation = useCallback((payload) => dispatch({ type: ACTIONS.SET_LOCATION, payload }), []);
-    const setBudget = useCallback((payload) => dispatch({ type: ACTIONS.SET_BUDGET, payload }), []);
-    const setChatMessages = useCallback((payload) => dispatch({ type: ACTIONS.SET_CHAT_MESSAGES, payload }), []);
-    const setTomorrowOutfit = useCallback((payload) => dispatch({ type: ACTIONS.SET_TOMORROW_OUTFIT, payload }), []);
-    const setWishlist = useCallback((payload) => dispatch({ type: ACTIONS.SET_WISHLIST, payload }), []);
-
-    const logOutfit = useCallback((itemIds) => {
-        dispatch({ type: ACTIONS.LOG_OUTFIT, payload: { itemIds, date: new Date().toDateString() } });
-    }, []);
-
-    const completeQuest = useCallback(() => {
-        dispatch({ type: ACTIONS.COMPLETE_QUEST });
-    }, []);
-
-    const updateItem = useCallback((id, updates) => {
-        dispatch({ type: ACTIONS.UPDATE_ITEM, payload: { id, updates } });
-    }, []);
-
-    const addToWishlist = useCallback((item) => {
-        // Simple duplicate check moved to reducer or here
-        dispatch({ type: ACTIONS.ADD_TO_WISHLIST, payload: item });
-    }, []);
-
-    const removeFromWishlist = useCallback((id) => {
-        dispatch({ type: ACTIONS.REMOVE_FROM_WISHLIST, payload: id });
-    }, []);
-
-    const buyItem = useCallback((item) => {
-        dispatch({ type: ACTIONS.BUY_ITEM, payload: item });
-    }, []);
-
-    const clearData = useCallback(() => {
-        // Reset to defaults
-        const defaults = {
-            userProfile: { xp: 0, streak: 0, soundEffects: true }, // Keep essential defaults
-            inventory: [],
-            outfitLogs: [],
-            apiKey: '',
-            location: '',
-            budget: 0,
-            dailyQuest: { text: DAILY_QUESTS[0], isCompleted: false, date: new Date().toDateString() },
-            chatMessages: [],
-            tomorrowOutfit: [],
-            wishlist: []
         };
-        // Clear Local Storage
-        Object.values(LOCAL_STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
-        localStorage.removeItem('vibe_budget');
 
-        dispatch({ type: ACTIONS.CLEAR_DATA, payload: defaults });
-    }, []);
+        return {
+            dispatch, // Escape hatch
+            setUserProfile, // Warning: This no longer supports functional updates automatically if we want it stable.
+            // If we need functional updates, we should pass (prev) => new in the hook usage? 
+            // The reducer is standard.
+            // I will keep the simple version here. **If code relies on functional updates, it might break.**
+            // Checking usages: InventoryPage uses `setUserProfile(prev => ...)`
+            // FIX: I will change InventoryPage to read state then set it.
 
-    // Laundry helper specifically for the UI button
-    const handleLaundryDay = useCallback(() => {
-        dispatch({ type: ACTIONS.LAUNDRY_DAY });
-    }, []);
+            setInventory: (payload) => dispatch({ type: ACTIONS.SET_INVENTORY, payload }),
+            setOutfitLogs: (payload) => dispatch({ type: ACTIONS.SET_LOGS, payload }),
+            setApiKey: (payload) => dispatch({ type: ACTIONS.SET_API_KEY, payload }),
+            setLocation: (payload) => dispatch({ type: ACTIONS.SET_LOCATION, payload }),
+            setBudget: (payload) => dispatch({ type: ACTIONS.SET_BUDGET, payload }),
+            setChatMessages: (payload) => dispatch({ type: ACTIONS.SET_CHAT_MESSAGES, payload }),
+            setTomorrowOutfit: (payload) => dispatch({ type: ACTIONS.SET_TOMORROW_OUTFIT, payload }),
+            setWishlist: (payload) => dispatch({ type: ACTIONS.SET_WISHLIST, payload }),
 
-    const value = useMemo(() => ({
-        ...state, // Spread state properties (userProfile, inventory, etc.)
-        setUserProfile,
-        setInventory, // Exposed for direct manipulation if really needed, but try to use actions
-        setOutfitLogs,
-        setApiKey,
-        setLocation,
-        setBudget,
-        setChatMessages,
-        setTomorrowOutfit,
-        setWishlist,
-        logOutfit,
-        completeQuest,
-        updateItem,
-        addToWishlist,
-        removeFromWishlist,
-        buyItem,
-        clearData,
-        handleLaundryDay // Exposed action for button
-    }), [
-        state,
-        setUserProfile,
-        setInventory,
-        setOutfitLogs,
-        setApiKey,
-        setLocation,
-        setBudget,
-        setChatMessages,
-        setTomorrowOutfit,
-        setWishlist,
-        logOutfit,
-        completeQuest,
-        updateItem,
-        addToWishlist,
-        removeFromWishlist,
-        buyItem,
-        clearData,
-        handleLaundryDay
-    ]);
+            logOutfit: (itemIds) => dispatch({ type: ACTIONS.LOG_OUTFIT, payload: { itemIds, date: new Date().toDateString() } }),
+            completeQuest: () => dispatch({ type: ACTIONS.COMPLETE_QUEST }),
+            updateItem: (id, updates) => dispatch({ type: ACTIONS.UPDATE_ITEM, payload: { id, updates } }),
+            addToWishlist: (item) => dispatch({ type: ACTIONS.ADD_TO_WISHLIST, payload: item }),
+            removeFromWishlist: (id) => dispatch({ type: ACTIONS.REMOVE_FROM_WISHLIST, payload: id }),
+            buyItem: (item) => dispatch({ type: ACTIONS.BUY_ITEM, payload: item }),
+
+            clearData: () => {
+                const defaults = {
+                    userProfile: { xp: 0, streak: 0, soundEffects: true },
+                    inventory: [],
+                    outfitLogs: [],
+                    apiKey: '',
+                    location: '',
+                    budget: 0,
+                    dailyQuest: { text: DAILY_QUESTS[0], isCompleted: false, date: new Date().toDateString() },
+                    chatMessages: [],
+                    tomorrowOutfit: [],
+                    wishlist: []
+                };
+                Object.values(LOCAL_STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+                localStorage.removeItem('vibe_budget');
+                dispatch({ type: ACTIONS.CLEAR_DATA, payload: defaults });
+            },
+
+            handleLaundryDay: () => dispatch({ type: ACTIONS.LAUNDRY_DAY })
+        };
+    }, []); // No dependencies! Completely stable.
+
+    // Re-add functional update support for setUserProfile by using a ref or just accessing state in a non-dep way?
+    // No, cleaner to just fix the call site in InventoryPage.
 
     return (
-        <VibeContext.Provider value={value}>
-            {children}
-        </VibeContext.Provider>
+        <VibeStateContext.Provider value={state}>
+            <VibeDispatchContext.Provider value={dispatchActions}>
+                {children}
+            </VibeDispatchContext.Provider>
+        </VibeStateContext.Provider>
     );
 };

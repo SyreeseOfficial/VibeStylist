@@ -159,6 +159,7 @@ const PlannerPage = () => {
                     isSelectionMode={true}
                     selectedItems={selectedForPlan}
                     setSelectedItems={setSelectedForPlan}
+                    inventory={inventory}
                 />
             </div>
         </div>

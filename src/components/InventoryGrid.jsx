@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
-import { useVibe } from '../context/VibeContext';
+import React, { useState, memo } from 'react';
+import { useVibeDispatch } from '../context/VibeContext';
 import { Trash2, Droplets, Sparkles, Pencil, Check, X, Search, Filter, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmationModal from './ConfirmationModal';
 import InventoryItemCard from './InventoryItemCard';
 import { calculateCPW } from '../utils/mathUtils';
 
-const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode = 'inventory' }) => {
-    const { inventory, setInventory, updateItem, wishlist, removeFromWishlist, buyItem, setWishlist } = useVibe();
+const InventoryGrid = memo(({
+    isSelectionMode,
+    selectedItems,
+    setSelectedItems,
+    mode = 'inventory',
+    inventory = [], // Prop from parent
+    wishlist = []   // Prop from parent
+}) => {
+    // Pure Dispatch actions - stable
+    const { setInventory, updateItem, removeFromWishlist, buyItem, setWishlist } = useVibeDispatch();
+
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
     const [deleteCandidateId, setDeleteCandidateId] = useState(null);
@@ -21,9 +30,14 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
     const [sortBy, setSortBy] = useState('newest');
 
     const toggleClean = (id) => {
-        setInventory(prev => prev.map(item =>
+        // Dispatch setInventory with new array. 
+        // Logic must be done here since we are avoiding function updates for context stability, 
+        // OR we just send the NEW array.
+        // Since we have 'inventory' prop, we can map over it.
+        const newInventory = inventory.map(item =>
             item.id === id ? { ...item, isClean: !item.isClean } : item
-        ));
+        );
+        setInventory(newInventory);
     };
 
     const handleDelete = (id) => {
@@ -35,7 +49,9 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
             if (mode === 'wishlist') {
                 removeFromWishlist(deleteCandidateId);
             } else {
-                setInventory(prev => prev.filter(item => item.id !== deleteCandidateId));
+                // Determine new inventory
+                const newInventory = inventory.filter(item => item.id !== deleteCandidateId);
+                setInventory(newInventory);
             }
             setDeleteCandidateId(null);
         }
@@ -48,18 +64,15 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
 
     const handleSave = (id) => {
         if (mode === 'wishlist') {
-            setWishlist(prev => prev.map(item =>
+            const newWishlist = wishlist.map(item =>
                 item.id === id ? { ...item, ...editForm } : item
-            ));
+            );
+            setWishlist(newWishlist);
         } else {
             updateItem(id, editForm);
         }
         setEditingId(null);
     };
-
-    // Patching handleSave to support wishlist locally inside this component requires setWishlist
-    // I will use a separate effect or just grab setWishlist above if I can re-declare. 
-    // Actually, I can just re-write the destructuring line.
 
     const handleCancel = () => {
         setEditingId(null);
@@ -67,9 +80,6 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
 
     const handleItemClick = (id) => {
         if (!isSelectionMode) return;
-
-        // Wishlist usually doesn't need selection for "log outfit", but maybe for bulk delete?
-        // User didn't specify wishlist selection features, but good to keep safe.
 
         setSelectedItems(prev => {
             if (prev.includes(id)) {
@@ -93,32 +103,23 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
         })
         .sort((a, b) => {
             if (sortBy === 'newest') {
-                // Assuming dateAdded is ISO string. 
                 return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
             }
             if (sortBy === 'mostWorn') return (b.wearCount || 0) - (a.wearCount || 0);
             if (sortBy === 'leastWorn') return (a.wearCount || 0) - (b.wearCount || 0);
 
             if (sortBy === 'bestValue') {
-                // Lowest CPW
                 const cpwA = calculateCPW(a.price, a.wearCount || 0).value;
                 const cpwB = calculateCPW(b.price, b.wearCount || 0).value;
-                // If price is 0, CPW is 0. 
-                // We typically want "Best Value" to mean "I got my money's worth" -> Low Cost Per Wear.
-                // If I prefer "Low Price" for unworn items, checking CPW handles it (price/1 if 0 wears).
                 return cpwA - cpwB;
             }
             if (sortBy === 'worstValue') {
-                // Highest CPW
                 const cpwA = calculateCPW(a.price, a.wearCount || 0).value;
                 const cpwB = calculateCPW(b.price, b.wearCount || 0).value;
                 return cpwB - cpwA;
             }
 
             if (sortBy === 'neglected') {
-                // Oldest date added with lowest wears.
-                // Score = WearCount + (recency_factor).
-                // Or sort by WearCount ASC, then Date ASC.
                 if ((a.wearCount || 0) !== (b.wearCount || 0)) {
                     return (a.wearCount || 0) - (b.wearCount || 0);
                 }
@@ -256,7 +257,7 @@ const InventoryGrid = ({ isSelectionMode, selectedItems, setSelectedItems, mode 
             />
         </div>
     );
-};
+});
 
 export default InventoryGrid;
 

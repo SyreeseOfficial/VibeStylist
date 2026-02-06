@@ -1,13 +1,14 @@
 import React from 'react';
 import AddItemForm from '../components/AddItemForm';
 import InventoryGrid from '../components/InventoryGrid';
-import { useVibe } from '../context/VibeContext';
+import { useVibeState, useVibeDispatch } from '../context/VibeContext';
 import { Shirt, WashingMachine, Calendar, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { XP_REWARDS } from '../utils/constants';
 
 const InventoryPage = () => {
-    const { inventory, setInventory, logOutfit, setUserProfile } = useVibe();
+    const { inventory, wishlist, userProfile } = useVibeState();
+    const { setInventory, logOutfit, setUserProfile } = useVibeDispatch();
     const [isSelectionMode, setIsSelectionMode] = React.useState(false);
     const [selectedItems, setSelectedItems] = React.useState([]);
 
@@ -19,17 +20,18 @@ const InventoryPage = () => {
             return;
         }
 
-        setInventory(prev => prev.map(item => ({
+        const cleanInventory = inventory.map(item => ({
             ...item,
             isClean: true
-        })));
+        }));
+        setInventory(cleanInventory);
 
         const xpEarned = Math.min(dirtyItems.length * XP_REWARDS.LAUNDRY_ITEM, XP_REWARDS.LAUNDRY_MAX);
 
-        setUserProfile(prev => ({
-            ...prev,
-            xp: (prev.xp || 0) + xpEarned
-        }));
+        setUserProfile({
+            ...userProfile,
+            xp: (userProfile.xp || 0) + xpEarned
+        });
 
         toast.success(`Laundry done! ${dirtyItems.length} items are back in rotation. +${xpEarned} XP`);
     };
@@ -135,6 +137,8 @@ const InventoryPage = () => {
                         isSelectionMode={isSelectionMode}
                         selectedItems={selectedItems}
                         setSelectedItems={setSelectedItems}
+                        inventory={inventory}
+                        wishlist={wishlist}
                     />
                 </div>
             </div>

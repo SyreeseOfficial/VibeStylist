@@ -1,11 +1,12 @@
 import React from 'react';
 import AddItemForm from '../components/AddItemForm';
 import InventoryGrid from '../components/InventoryGrid';
-import { useVibe } from '../context/VibeContext';
+import { useVibeState, useVibeDispatch } from '../context/VibeContext';
 import { Heart, Wallet } from 'lucide-react';
 
 const WishlistPage = () => {
-    const { wishlist, budget, setBudget } = useVibe();
+    const { wishlist, budget, inventory } = useVibeState();
+    const { setBudget } = useVibeDispatch();
     const [isEditingBudget, setIsEditingBudget] = React.useState(false);
     const [newBudget, setNewBudget] = React.useState(budget);
     // Wishlist doesn't strictly need selection mode for now as per requirements, 
@@ -107,6 +108,8 @@ const WishlistPage = () => {
                         isSelectionMode={isSelectionMode}
                         selectedItems={selectedItems}
                         setSelectedItems={setSelectedItems}
+                        inventory={inventory}
+                        wishlist={wishlist}
                     />
                 </div>
             </div>

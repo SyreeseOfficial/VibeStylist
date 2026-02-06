@@ -3,6 +3,7 @@ import { useVibe } from '../context/VibeContext';
 import { Plus, Check, Camera, X } from 'lucide-react';
 import { resizeImage } from '../utils/imageUtils';
 import { XP_REWARDS } from '../utils/constants';
+import { toast } from 'sonner';
 
 const AddItemForm = ({ mode = 'inventory' }) => {
     const { setInventory, addToWishlist, setUserProfile } = useVibe();
@@ -23,6 +24,7 @@ const AddItemForm = ({ mode = 'inventory' }) => {
                 setImagePreview(resized);
             } catch (err) {
                 console.error("Error resizing image", err);
+                toast.error(err.message || "Failed to process image");
             }
         }
     };
