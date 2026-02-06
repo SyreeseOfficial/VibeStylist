@@ -1,6 +1,23 @@
-import { API_ENDPOINTS, SYSTEM_PROMPTS } from './constants';
+import { API_ENDPOINTS, SYSTEM_PROMPTS, LOCAL_STORAGE_KEYS } from './constants';
 
-export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHistory, weatherData = null) => {
+const getApiKey = () => {
+    try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.API_KEY);
+        // It might be stored as a raw string or a JSON string depending on previous logic.
+        // The new hook writes JSON.stringify.
+        // Let's safe parse it.
+        if (!stored) return '';
+        const parsed = JSON.parse(stored);
+        return parsed || '';
+    } catch (e) {
+        // Fallback for raw string if legacy
+        return localStorage.getItem(LOCAL_STORAGE_KEYS.API_KEY) || '';
+    }
+}
+
+export const generateStyleAdvice = async (userProfile, inventory, chatHistory, weatherData = null) => {
+    const apiKey = getApiKey();
+
     if (!apiKey) {
         throw new Error("API Key is missing. Please add it in Settings.");
     }
@@ -15,10 +32,10 @@ export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHi
         : SYSTEM_PROMPTS.BASE;
 
     let systemPrompt = basePrompt
-        .replace('{name}', userProfile.name)
-        .replace('{fitPreference}', userProfile.fitPreference)
-        .replace('{colorPalette}', userProfile.colorPalette)
-        .replace('{utilityVsAesthetic}', userProfile.utilityVsAesthetic)
+        .replace('{name}', userProfile.name || 'User')
+        .replace('{fitPreference}', userProfile.fitPreference || 'Standard')
+        .replace('{colorPalette}', userProfile.colorPalette || 'Any')
+        .replace('{utilityVsAesthetic}', userProfile.utilityVsAesthetic || 'Balanced')
         .replace('{cleanInventory}', JSON.stringify(cleanInventory, null, 2))
         .replace('{weatherInfo}', weatherInfo);
 
@@ -83,7 +100,13 @@ export const generateStyleAdvice = async (apiKey, userProfile, inventory, chatHi
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error?.message || "Failed to fetch response from Gemini");
+            const status = response.status;
+
+            if (status === 429) {
+                throw new Error("Quota exceeded. Please check your API usage or try again later.");
+            }
+
+            throw new Error(errorData.error?.message || `Gemini API Error: ${status}`);
         }
 
         const data = await response.json();
@@ -112,6 +135,11 @@ export const testApiKeyConnection = async (apiKey) => {
         const data = await response.json();
 
         if (!response.ok) {
+            const status = response.status;
+            if (status === 400) throw new Error("Invalid API Key format or bad request.");
+            if (status === 403) throw new Error("API Key not authorized (check valid/billing).");
+            if (status === 429) throw new Error("Rate limit exceeded.");
+
             throw new Error(data.error?.message || `Error: ${response.status} ${response.statusText}`);
         }
 
