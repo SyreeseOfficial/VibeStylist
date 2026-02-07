@@ -16,7 +16,10 @@ const Onboarding = () => {
         textures: [], // Multi-select
         accessoryVibe: 'Functional', // Single select
         lifestyle: 'Casual', // New Step 5
-        climate: 'Neutral' // New Step 6
+        climate: 'Neutral', // New Step 6
+        bodyType: 'Average', // New Step 8
+        styleEras: [], // Multi-select, New Step 9
+        fashionDislikes: [] // Multi-select, New Step 10
     });
 
     const TEXTURE_OPTIONS = ['Denim', 'Leather', 'Cotton', 'Tech/Synthetic', 'Wool', 'Silk/Satin'];
@@ -36,17 +39,22 @@ const Onboarding = () => {
         { id: 'Neutral', label: 'Neutral', desc: 'I adapt to the seasons.' },
         { id: 'Always Hot', label: 'Always Hot', desc: 'Less is more. Breathable fabrics.' }
     ];
+    const BODY_TYPE_OPTIONS = ['Petite', 'Tall', 'Curvy', 'Athletic', 'Broad Shoulders', 'Narrow Hips', 'Average'];
+    const STYLE_ERA_OPTIONS = ['90s Grunge', 'Y2K', '70s Boho', '80s Power', 'Old Money', 'Streetwear', 'Modern Minimalist'];
+    const DISLIKE_OPTIONS = ['Crop Tops', 'High Heels', 'Skinny Jeans', 'Polyester', 'Bright Colors', 'Logos', 'Wool'];
 
-    const toggleTexture = (texture) => {
+    const toggleMultiSelect = (field, value) => {
         setFormData(prev => {
-            const current = prev.textures || [];
-            if (current.includes(texture)) {
-                return { ...prev, textures: current.filter(t => t !== texture) };
+            const current = prev[field] || [];
+            if (current.includes(value)) {
+                return { ...prev, [field]: current.filter(t => t !== value) };
             } else {
-                return { ...prev, textures: [...current, texture] };
+                return { ...prev, [field]: [...current, value] };
             }
         });
     };
+
+    const toggleTexture = (texture) => toggleMultiSelect('textures', texture);
 
     const handleNext = () => setStep(prev => prev + 1);
     const handleBack = () => setStep(prev => prev - 1);
@@ -64,7 +72,7 @@ const Onboarding = () => {
                 <div className="bg-gray-700 h-2 w-full">
                     <div
                         className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                        style={{ width: `${(step / 7) * 100}%` }}
+                        style={{ width: `${(step / 10) * 100}%` }}
                     />
                 </div>
 
@@ -78,10 +86,13 @@ const Onboarding = () => {
                             {step === 4 && "Accessorize"}
                             {step === 5 && "Lifestyle"}
                             {step === 6 && "Climate Check"}
-                            {step === 7 && "Review & Save"}
+                            {step === 7 && "Body Type"}
+                            {step === 8 && "Viral Eras"}
+                            {step === 9 && "Dealbreakers"}
+                            {step === 10 && "Review & Save"}
                         </h2>
                         <p className="text-gray-400 text-sm">
-                            Step {step} of 7
+                            Step {step} of 10
                         </p>
                     </div>
 
@@ -287,8 +298,73 @@ const Onboarding = () => {
                         </div>
                     )}
 
-                    {/* Step 7: Summary */}
+                    {/* Step 7 -> 10: Summary was previously 7 */}
+
+                    {/* Step 7: Body Type */}
                     {step === 7 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">How would you describe your build?</h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                {BODY_TYPE_OPTIONS.map(type => (
+                                    <button
+                                        key={type}
+                                        onClick={() => setFormData({ ...formData, bodyType: type })}
+                                        className={`p-3 rounded-lg border transition text-center ${formData.bodyType === type
+                                            ? 'bg-blue-600 border-blue-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 8: Eras */}
+                    {step === 8 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Vibe Check: Favorite Eras/Styles</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {STYLE_ERA_OPTIONS.map(era => (
+                                    <button
+                                        key={era}
+                                        onClick={() => toggleMultiSelect('styleEras', era)}
+                                        className={`px-4 py-2 rounded-full border transition text-sm ${formData.styleEras?.includes(era)
+                                            ? 'bg-pink-600 border-pink-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {era}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 9: Dislikes */}
+                    {step === 9 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Fashion Dealbreakers (I will never wear...)</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {DISLIKE_OPTIONS.map(item => (
+                                    <button
+                                        key={item}
+                                        onClick={() => toggleMultiSelect('fashionDislikes', item)}
+                                        className={`px-4 py-2 rounded-full border transition text-sm ${formData.fashionDislikes?.includes(item)
+                                            ? 'bg-red-600 border-red-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {item}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 10: Summary */}
+                    {step === 10 && (
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-gray-900 rounded-xl p-6 border border-gray-700/50">
                                 <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-4">Profile Summary</h3>
@@ -326,6 +402,18 @@ const Onboarding = () => {
                                         <span className="text-gray-400">Climate</span>
                                         <span className="font-semibold">{formData.climate}</span>
                                     </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Body Type</span>
+                                        <span className="font-semibold">{formData.bodyType}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Favorite Eras</span>
+                                        <span className="font-semibold text-right text-xs">{(formData.styleEras || []).join(', ') || 'None'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Dislikes</span>
+                                        <span className="font-semibold text-right text-xs text-red-400">{(formData.fashionDislikes || []).join(', ') || 'None'}</span>
+                                    </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-400">Monthly Budget</span>
                                         <span className="font-semibold text-green-400">${formData.budget}</span>
@@ -349,7 +437,7 @@ const Onboarding = () => {
                             </button>
                         )}
 
-                        {step < 7 ? (
+                        {step < 10 ? (
                             <button
                                 onClick={handleNext}
                                 disabled={step === 1 && !formData.name.trim()}

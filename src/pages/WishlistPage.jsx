@@ -62,7 +62,9 @@ const WishlistPage = () => {
                                     <span className={`text-lg font-bold font-mono-system ${budget < 0 ? 'text-red-400' : 'text-white'}`}>
                                         ${budget.toFixed(2)}
                                     </span>
-                                    <span className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">Edit</span>
+                                    <span className="text-xs text-gray-500 opacity-50 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                        <Wallet size={12} /> Edit
+                                    </span>
                                 </div>
                             )}
                         </div>

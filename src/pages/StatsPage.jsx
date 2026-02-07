@@ -2,7 +2,8 @@ import React from 'react';
 import { useVibe } from '../context/VibeContext';
 import WardrobeAnalytics from '../components/WardrobeAnalytics';
 import StyleRadar from '../components/StyleRadar';
-import { BarChart3, ShoppingBag, Recycle, Sparkles, Lock, Moon, Sun, Calendar, DollarSign, Gem } from 'lucide-react';
+import { BarChart3, ShoppingBag, Recycle, Sparkles, Lock, Moon, Sun, Calendar, DollarSign, Gem, Zap } from 'lucide-react';
+import { XP_REWARDS } from '../utils/constants';
 
 const StatsPage = () => {
     const { inventory, userProfile, outfitLogs } = useVibe();
@@ -257,6 +258,24 @@ const StatsPage = () => {
                                     {badge.title}
                                 </h3>
                                 <p className="text-xs text-gray-400 mt-1 leading-relaxed">{badge.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* XP Guide */}
+            <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 p-6 rounded-2xl border border-indigo-500/30">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <Zap className="text-yellow-400" />
+                    How to Earn XP
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {Object.entries(XP_REWARDS).map(([key, amount]) => (
+                        <div key={key} className="bg-black/30 p-3 rounded-lg text-center">
+                            <div className="text-xl font-bold text-yellow-400">+{amount}</div>
+                            <div className="text-xs text-indigo-200 mt-1 capitalize">
+                                {key.replace(/_/g, ' ').toLowerCase()}
                             </div>
                         </div>
                     ))}

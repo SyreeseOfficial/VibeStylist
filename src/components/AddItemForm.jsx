@@ -6,7 +6,7 @@ import { XP_REWARDS } from '../utils/constants';
 import { toast } from 'sonner';
 
 const AddItemForm = ({ mode = 'inventory' }) => {
-    const { setInventory, addToWishlist, setUserProfile } = useVibe();
+    const { setInventory, addToWishlist, setUserProfile, userProfile } = useVibe();
     const [formData, setFormData] = useState({
         name: '',
         category: 'Top',
@@ -50,10 +50,10 @@ const AddItemForm = ({ mode = 'inventory' }) => {
         } else {
             setInventory(prev => [...prev, newItem]);
             // Award XP for adding item
-            setUserProfile(prev => ({
-                ...prev,
-                xp: (prev.xp || 0) + XP_REWARDS.ADD_ITEM
-            }));
+            setUserProfile({
+                ...userProfile,
+                xp: (userProfile.xp || 0) + XP_REWARDS.ADD_ITEM
+            });
         }
 
         // Reset form and show success
