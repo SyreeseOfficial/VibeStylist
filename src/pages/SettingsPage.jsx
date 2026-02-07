@@ -135,9 +135,12 @@ const SettingsPage = () => {
                                 }}
                                 className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
                             >
-                                <option value={GEMINI_MODELS.FLASH}>Gemini 1.5 Flash (Fastest, Free-tier friendly)</option>
-                                <option value={GEMINI_MODELS.PRO}>Gemini 1.5 Pro (Smarter, may require paid key)</option>
-                                <option value={GEMINI_MODELS.FLASH_8B}>Gemini 1.5 Flash-8B (Experimental)</option>
+                                <option value={GEMINI_MODELS.FLASH}>Gemini 1.5 Flash (Standard, Fast)</option>
+                                <option value={GEMINI_MODELS.PRO}>Gemini 1.5 Pro (High Intelligence)</option>
+                                <option value={GEMINI_MODELS.FLASH_2}>Gemini 2.0 Flash (Newest, Very Fast)</option>
+                                <option value={GEMINI_MODELS.PRO_EXP}>Gemini 2.0 Pro Exp (Experimental, Smartest)</option>
+                                <option value={GEMINI_MODELS.FLASH_LITE}>Gemini 2.0 Flash-Lite (Lightweight)</option>
+                                <option value={GEMINI_MODELS.FLASH_8B}>Gemini 1.5 Flash-8B (Legacy)</option>
                             </select>
                             <p className="text-xs text-slate-500 mt-2">
                                 "Flash" is recommended for speed. "Pro" provides higher quality but may have lower rate limits on free keys.

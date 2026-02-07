@@ -5,6 +5,9 @@ export const API_ENDPOINTS = {
 export const GEMINI_MODELS = {
     FLASH: "gemini-1.5-flash",
     PRO: "gemini-1.5-pro",
+    FLASH_2: "gemini-2.0-flash",
+    FLASH_LITE: "gemini-2.0-flash-lite-preview-02-05",
+    PRO_EXP: "gemini-2.0-pro-exp-02-05",
     FLASH_8B: "gemini-1.5-flash-8b"
 };
 
