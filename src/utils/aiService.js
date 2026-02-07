@@ -30,6 +30,12 @@ export const generateStyleAdvice = async (userProfile, inventory, chatHistory, w
         throw new Error("API Key is missing. Please add it in Settings.");
     }
 
+    // Safety check for inventory
+    if (!Array.isArray(inventory)) {
+        console.warn("Inventory is not an array, defaulting to empty list.", inventory);
+        inventory = [];
+    }
+
     // Filter for clean items only
     const cleanInventory = inventory.filter(item => item.isClean);
 

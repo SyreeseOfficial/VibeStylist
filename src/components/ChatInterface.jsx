@@ -71,7 +71,6 @@ const ChatInterface = () => {
 
         try {
             const aiResponseText = await generateStyleAdvice(
-                apiKey,
                 userProfile,
                 inventory,
                 [...chatMessages, newUserMsg],
