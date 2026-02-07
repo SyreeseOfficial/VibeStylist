@@ -1,22 +1,30 @@
-import { API_ENDPOINTS, SYSTEM_PROMPTS, LOCAL_STORAGE_KEYS } from './constants';
+import { API_ENDPOINTS, SYSTEM_PROMPTS, LOCAL_STORAGE_KEYS, GEMINI_MODELS } from './constants';
 
 const getApiKey = () => {
     try {
         const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.API_KEY);
-        // It might be stored as a raw string or a JSON string depending on previous logic.
-        // The new hook writes JSON.stringify.
-        // Let's safe parse it.
         if (!stored) return '';
         const parsed = JSON.parse(stored);
         return parsed || '';
     } catch (e) {
-        // Fallback for raw string if legacy
         return localStorage.getItem(LOCAL_STORAGE_KEYS.API_KEY) || '';
+    }
+}
+
+const getAiModel = () => {
+    try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AI_MODEL || 'aiModel');
+        if (!stored) return GEMINI_MODELS.FLASH;
+        const parsed = JSON.parse(stored);
+        return parsed || GEMINI_MODELS.FLASH;
+    } catch (e) {
+        return GEMINI_MODELS.FLASH;
     }
 }
 
 export const generateStyleAdvice = async (userProfile, inventory, chatHistory, weatherData = null) => {
     const apiKey = getApiKey();
+    const model = getAiModel();
 
     if (!apiKey) {
         throw new Error("API Key is missing. Please add it in Settings.");
@@ -82,7 +90,7 @@ export const generateStyleAdvice = async (userProfile, inventory, chatHistory, w
 
     try {
         const response = await fetch(
-            `${API_ENDPOINTS.GEMINI_GENERATE}?key=${apiKey}`,
+            `${API_ENDPOINTS.GEMINI_BASE}${model}:generateContent?key=${apiKey}`,
             {
                 method: "POST",
                 headers: {
@@ -99,8 +107,12 @@ export const generateStyleAdvice = async (userProfile, inventory, chatHistory, w
         );
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({}));
             const status = response.status;
+
+            if (status === 404) {
+                throw new Error(`Model ${model} not found or not supported by your key.`);
+            }
 
             if (status === 429) {
                 throw new Error("Quota exceeded. Please check your API usage or try again later.");
@@ -118,9 +130,9 @@ export const generateStyleAdvice = async (userProfile, inventory, chatHistory, w
     }
 };
 
-export const testApiKeyConnection = async (apiKey) => {
+export const testApiKeyConnection = async (apiKey, model = "gemini-1.5-flash") => {
     try {
-        const response = await fetch(`${API_ENDPOINTS.GEMINI_GENERATE}?key=${apiKey}`, {
+        const response = await fetch(`${API_ENDPOINTS.GEMINI_BASE}${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -138,6 +150,7 @@ export const testApiKeyConnection = async (apiKey) => {
             const status = response.status;
             if (status === 400) throw new Error("Invalid API Key format or bad request.");
             if (status === 403) throw new Error("API Key not authorized (check valid/billing).");
+            if (status === 404) throw new Error(`Model ${model} not available.`);
             if (status === 429) throw new Error("Rate limit exceeded.");
 
             throw new Error(data.error?.message || `Error: ${response.status} ${response.statusText}`);

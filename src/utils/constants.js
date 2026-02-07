@@ -1,5 +1,11 @@
 export const API_ENDPOINTS = {
-    GEMINI_GENERATE: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    GEMINI_BASE: "https://generativelanguage.googleapis.com/v1beta/models/"
+};
+
+export const GEMINI_MODELS = {
+    FLASH: "gemini-1.5-flash",
+    PRO: "gemini-1.5-pro",
+    FLASH_8B: "gemini-1.5-flash-8b"
 };
 
 export const SYSTEM_PROMPTS = {

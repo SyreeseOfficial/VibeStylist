@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useVibe } from '../context/VibeContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw, User, CloudSun, Volume2, VolumeX } from 'lucide-react';
+import { Save, Trash2, Key, AlertCircle, Check, Loader2, ArrowLeft, MapPin, Download, RefreshCw, User, CloudSun, Volume2, VolumeX, Cpu } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { testApiKeyConnection } from '../utils/aiService';
-import { XP_REWARDS } from '../utils/constants';
+import { XP_REWARDS, GEMINI_MODELS } from '../utils/constants';
 
 const SettingsPage = () => {
-    const { apiKey, setApiKey, clearData, location, setLocation, userProfile, setUserProfile } = useVibe();
+    const { apiKey, setApiKey, clearData, location, setLocation, userProfile, setUserProfile, aiModel, setAiModel } = useVibe();
     const [inputKey, setInputKey] = useState(apiKey);
     const [inputLocation, setInputLocation] = useState(location);
+    const [selectedModel, setSelectedModel] = useState(aiModel || GEMINI_MODELS.FLASH);
     const [displayName, setDisplayName] = useState(userProfile?.displayName || userProfile?.name || '');
     const [persona, setPersona] = useState(userProfile?.customPersona || '');
     const [saved, setSaved] = useState(false);
@@ -22,8 +23,11 @@ const SettingsPage = () => {
     const [testError, setTestError] = useState(null);
 
     const handleSave = () => {
-        setApiKey(inputKey);
+        const trimmedKey = inputKey.trim();
+        setApiKey(trimmedKey);
+        setInputKey(trimmedKey); // Update input to show trimmed version
         setLocation(inputLocation);
+        setAiModel(selectedModel);
 
         // Award XP for updating profile (flat reward)
         setUserProfile(prev => ({
@@ -38,14 +42,15 @@ const SettingsPage = () => {
     };
 
     const testConnection = async () => {
-        if (!inputKey) return;
+        const trimmedKey = inputKey.trim();
+        if (!trimmedKey) return;
 
         setTesting(true);
         setTestSuccess(false);
         setTestError(null);
 
         try {
-            await testApiKeyConnection(inputKey);
+            await testApiKeyConnection(trimmedKey, selectedModel);
             setTestSuccess(true);
         } catch (error) {
             setTestError(error.message);
@@ -64,7 +69,8 @@ const SettingsPage = () => {
             inventory: JSON.parse(localStorage.getItem('inventory') || '[]'),
             outfitLogs: JSON.parse(localStorage.getItem('outfitLogs') || '[]'),
             apiKey: JSON.parse(localStorage.getItem('apiKey') || '""'),
-            location: JSON.parse(localStorage.getItem('location') || '""')
+            location: JSON.parse(localStorage.getItem('location') || '""'),
+            aiModel: JSON.parse(localStorage.getItem('aiModel') || `"${GEMINI_MODELS.FLASH}"`)
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -113,8 +119,33 @@ const SettingsPage = () => {
                                 className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             />
                         </div>
+
+                        {/* AI Model Selection */}
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                <Cpu size={16} />
+                                AI Model
+                            </label>
+                            <select
+                                value={selectedModel}
+                                onChange={(e) => {
+                                    setSelectedModel(e.target.value);
+                                    setTestSuccess(false);
+                                    setTestError(null);
+                                }}
+                                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
+                            >
+                                <option value={GEMINI_MODELS.FLASH}>Gemini 1.5 Flash (Fastest, Free-tier friendly)</option>
+                                <option value={GEMINI_MODELS.PRO}>Gemini 1.5 Pro (Smarter, may require paid key)</option>
+                                <option value={GEMINI_MODELS.FLASH_8B}>Gemini 1.5 Flash-8B (Experimental)</option>
+                            </select>
+                            <p className="text-xs text-slate-500 mt-2">
+                                "Flash" is recommended for speed. "Pro" provides higher quality but may have lower rate limits on free keys.
+                            </p>
+                        </div>
+
                         {/* Test Connection / Status Area */}
-                        <div className="mt-3 flex items-center justify-between">
+                        <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
                             <button
                                 onClick={testConnection}
                                 disabled={testing || !inputKey}
@@ -202,7 +233,7 @@ const SettingsPage = () => {
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition"
                     >
                         <Save size={18} />
-                        {saved ? `Saved! +${XP_REWARDS.UPDATE_PROFILE} XP` : 'Save Key'}
+                        {saved ? `Saved! +${XP_REWARDS.UPDATE_PROFILE} XP` : 'Save Settings'}
                     </button>
                 </div>
 
