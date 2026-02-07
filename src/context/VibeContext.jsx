@@ -82,8 +82,17 @@ export const VibeProvider = ({ children }) => {
     // --- 3. Side Effects Logic (Confetti, Sounds, Toasts) ---
     useEffect(() => {
         if (state._sideEffect) {
-            const { type, earnedBadge } = state._sideEffect;
+            const { type, earnedBadge, xpEarned, source } = state._sideEffect;
             const soundEnabled = state.userProfile.soundEffects !== false;
+
+            // Generic XP Notification for ANY action that earns XP
+            if (xpEarned) {
+                // Use a custom icon or emoji for XP
+                toast.success(`+${xpEarned} XP: ${source || 'Action Complete'}`, {
+                    icon: '✨',
+                    duration: 2000
+                });
+            }
 
             if (type === 'LOG_SUCCESS') {
                 playSound(SOUNDS.LEVEL_UP, soundEnabled);
@@ -92,6 +101,8 @@ export const VibeProvider = ({ children }) => {
                     toast.success("Badge Unlocked: Fashionista! + Streak Bonus!");
                 }
             } else if (type === 'QUEST_COMPLETE') {
+                playSound(SOUNDS.LEVEL_UP, soundEnabled);
+            } else if (type === 'LAUNDRY_COMPLETE') {
                 playSound(SOUNDS.LEVEL_UP, soundEnabled);
             }
         }

@@ -124,7 +124,9 @@ export const vibeReducer = (state, action) => {
                 // Pass flags to UI for side effects (confetti, sounds)
                 _sideEffect: {
                     type: 'LOG_SUCCESS',
-                    earnedBadge: justEarnedFashionista ? 'Fashionista' : null
+                    earnedBadge: justEarnedFashionista ? 'Fashionista' : null,
+                    xpEarned: XP_REWARDS.LOG_OUTFIT,
+                    source: "Outfit Logged"
                 }
             };
         }
@@ -139,7 +141,11 @@ export const vibeReducer = (state, action) => {
                     ...state.userProfile,
                     xp: (state.userProfile.xp || 0) + XP_REWARDS.COMPLETE_QUEST
                 },
-                _sideEffect: { type: 'QUEST_COMPLETE' }
+                _sideEffect: {
+                    type: 'QUEST_COMPLETE',
+                    xpEarned: XP_REWARDS.COMPLETE_QUEST,
+                    source: "Quest Completed"
+                }
             };
         }
 
@@ -162,7 +168,9 @@ export const vibeReducer = (state, action) => {
                 _sideEffect: {
                     type: 'LAUNDRY_COMPLETE',
                     count: dirtyItems.length,
-                    xp: xpEarned
+                    xp: xpEarned,
+                    xpEarned: xpEarned, // Duplicate for consistency in listener
+                    source: "Laundry Done"
                 }
             };
         }
