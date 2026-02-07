@@ -216,7 +216,7 @@ const SettingsPage = () => {
                             className={`w-full text-white font-medium py-3 px-4 rounded-lg flex items-center justify-between transition group ${userProfile?.sassMode ? 'bg-purple-600 hover:bg-purple-700' : 'bg-slate-700 hover:bg-slate-600'}`}
                         >
                             <span className="flex items-center gap-3">
-                                {userProfile?.sassMode ? '🔥' : '😐'}
+                                <span>{userProfile?.sassMode ? '🔥' : '😐'}</span>
                                 Roast My Fit Mode
                             </span>
                             <span className="text-xs text-white/70">

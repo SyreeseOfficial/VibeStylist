@@ -36,10 +36,30 @@ const PlannerPage = () => {
         }
     };
 
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ name: '', category: '', price: '' });
+
     const handleRemoveFromPlan = (id) => {
         if (setTomorrowOutfit) {
             setTomorrowOutfit(prev => prev.filter(itemId => itemId !== id));
         }
+    };
+
+    const handleEditClick = (item) => {
+        setEditingId(item.id);
+        setEditForm({ name: item.name, category: item.category, price: item.price || '' });
+    };
+
+    const handleSave = (id) => {
+        const { updateItem } = vibeHook;
+        if (updateItem) {
+            updateItem(id, editForm);
+        }
+        setEditingId(null);
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
     };
 
     const handleAiPlan = async () => {
@@ -123,17 +143,15 @@ const PlannerPage = () => {
                                 <InventoryItemCard
                                     item={item}
                                     isSelectionMode={false}
-                                    onEditClick={() => { }}
-                                    onDelete={() => { }}
+                                    isEditing={editingId === item.id}
+                                    editForm={editForm}
+                                    onEditFormChange={setEditForm}
+                                    onEditClick={handleEditClick}
+                                    onSave={handleSave}
+                                    onCancel={handleCancel}
+                                    onDelete={() => handleRemoveFromPlan(item.id)}
                                     onItemClick={() => { }}
                                 />
-                                <button
-                                    onClick={() => handleRemoveFromPlan(item.id)}
-                                    className="absolute top-2 right-2 p-2 bg-red-600/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-500"
-                                    title="Remove from Plan"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
                             </div>
                         ))}
                     </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useVibe } from '../context/VibeContext';
 import WardrobeAnalytics from '../components/WardrobeAnalytics';
 import StyleRadar from '../components/StyleRadar';
-import { BarChart3, ShoppingBag, Recycle, Sparkles, Lock, Moon, Sun, Calendar, DollarSign } from 'lucide-react';
+import { BarChart3, ShoppingBag, Recycle, Sparkles, Lock, Moon, Sun, Calendar, DollarSign, Gem } from 'lucide-react';
 
 const StatsPage = () => {
     const { inventory, userProfile, outfitLogs } = useVibe();
@@ -133,6 +133,16 @@ const StatsPage = () => {
             color: 'text-yellow-400',
             bg: 'bg-yellow-400/20',
             border: 'border-yellow-400/50'
+        },
+        {
+            id: 'accessory_addict',
+            title: 'Accessory Addict',
+            description: 'Have 5+ items in the "Accessory" category.',
+            icon: <Gem size={24} />,
+            isUnlocked: inventory.filter(i => i.category === 'Accessory').length >= 5,
+            color: 'text-teal-400',
+            bg: 'bg-teal-400/20',
+            border: 'border-teal-400/50'
         }
     ];
 

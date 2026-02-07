@@ -14,7 +14,9 @@ const Onboarding = () => {
         utilityVsAesthetic: 50, // 0: Utility, 100: Aesthetic
         budget: 0, // Default budget
         textures: [], // Multi-select
-        accessoryVibe: 'Functional' // Single select
+        accessoryVibe: 'Functional', // Single select
+        lifestyle: 'Casual', // New Step 5
+        climate: 'Neutral' // New Step 6
     });
 
     const TEXTURE_OPTIONS = ['Denim', 'Leather', 'Cotton', 'Tech/Synthetic', 'Wool', 'Silk/Satin'];
@@ -22,6 +24,17 @@ const Onboarding = () => {
         { id: 'Minimalist', label: 'Minimalist', desc: 'No clutter, just essentials.' },
         { id: 'Functional', label: 'Functional', desc: 'Watches, bags, belts.' },
         { id: 'Statement', label: 'Statement', desc: 'Jewelry, hats, scarves.' }
+    ];
+    const LIFESTYLE_OPTIONS = [
+        { id: 'Casual', label: 'Casual', desc: 'Relaxed, everyday comfort.' },
+        { id: 'Work', label: 'Work / Professional', desc: 'Sharp, clean, business-ready.' },
+        { id: 'Active', label: 'Active', desc: 'Gym to street, always moving.' },
+        { id: 'Party', label: 'Party / Social', desc: 'Bold looks for nights out.' }
+    ];
+    const CLIMATE_OPTIONS = [
+        { id: 'Always Cold', label: 'Always Cold', desc: 'Layer me up, buttercup.' },
+        { id: 'Neutral', label: 'Neutral', desc: 'I adapt to the seasons.' },
+        { id: 'Always Hot', label: 'Always Hot', desc: 'Less is more. Breathable fabrics.' }
     ];
 
     const toggleTexture = (texture) => {
@@ -51,7 +64,7 @@ const Onboarding = () => {
                 <div className="bg-gray-700 h-2 w-full">
                     <div
                         className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                        style={{ width: `${(step / 5) * 100}%` }}
+                        style={{ width: `${(step / 7) * 100}%` }}
                     />
                 </div>
 
@@ -63,10 +76,12 @@ const Onboarding = () => {
                             {step === 2 && "Define your Vibe"}
                             {step === 3 && "Fabric & Feel"}
                             {step === 4 && "Accessorize"}
-                            {step === 5 && "Review & Save"}
+                            {step === 5 && "Lifestyle"}
+                            {step === 6 && "Climate Check"}
+                            {step === 7 && "Review & Save"}
                         </h2>
                         <p className="text-gray-400 text-sm">
-                            Step {step} of 5
+                            Step {step} of 7
                         </p>
                     </div>
 
@@ -215,10 +230,65 @@ const Onboarding = () => {
                                 ))}
                             </div>
                         </div>
+
                     )}
 
-                    {/* Step 5: Summary */}
+                    {/* Step 5: Lifestyle */}
                     {step === 5 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Primary Vibe</h3>
+                            <div className="space-y-3">
+                                {LIFESTYLE_OPTIONS.map(option => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => setFormData({ ...formData, lifestyle: option.id })}
+                                        className={`w-full p-4 rounded-xl border transition flex items-center justify-between ${formData.lifestyle === option.id
+                                            ? 'bg-indigo-600 border-indigo-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        <div className="text-left">
+                                            <div className="font-semibold">{option.label}</div>
+                                            <div className={`text-sm ${formData.lifestyle === option.id ? 'text-indigo-200' : 'text-gray-400'}`}>
+                                                {option.desc}
+                                            </div>
+                                        </div>
+                                        {formData.lifestyle === option.id && <Check size={20} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 6: Climate */}
+                    {step === 6 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            <h3 className="text-lg font-medium text-white mb-4">Temperature Preference</h3>
+                            <div className="space-y-3">
+                                {CLIMATE_OPTIONS.map(option => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => setFormData({ ...formData, climate: option.id })}
+                                        className={`w-full p-4 rounded-xl border transition flex items-center justify-between ${formData.climate === option.id
+                                            ? 'bg-orange-600 border-orange-500 text-white'
+                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        <div className="text-left">
+                                            <div className="font-semibold">{option.label}</div>
+                                            <div className={`text-sm ${formData.climate === option.id ? 'text-orange-200' : 'text-gray-400'}`}>
+                                                {option.desc}
+                                            </div>
+                                        </div>
+                                        {formData.climate === option.id && <Check size={20} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 7: Summary */}
+                    {step === 7 && (
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-gray-900 rounded-xl p-6 border border-gray-700/50">
                                 <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-4">Profile Summary</h3>
@@ -248,6 +318,14 @@ const Onboarding = () => {
                                         <span className="text-gray-400">Accessories</span>
                                         <span className="font-semibold">{formData.accessoryVibe}</span>
                                     </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Lifestyle</span>
+                                        <span className="font-semibold">{formData.lifestyle}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-800">
+                                        <span className="text-gray-400">Climate</span>
+                                        <span className="font-semibold">{formData.climate}</span>
+                                    </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-400">Monthly Budget</span>
                                         <span className="font-semibold text-green-400">${formData.budget}</span>
@@ -271,7 +349,7 @@ const Onboarding = () => {
                             </button>
                         )}
 
-                        {step < 5 ? (
+                        {step < 7 ? (
                             <button
                                 onClick={handleNext}
                                 disabled={step === 1 && !formData.name.trim()}
@@ -290,7 +368,7 @@ const Onboarding = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
