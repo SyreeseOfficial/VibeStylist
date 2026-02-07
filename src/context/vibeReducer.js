@@ -23,7 +23,8 @@ export const ACTIONS = {
     ADD_ITEM: 'ADD_ITEM',
     ADD_ITEM: 'ADD_ITEM',
     CLEAR_DATA: 'CLEAR_DATA',
-    SET_AI_MODEL: 'SET_AI_MODEL'
+    SET_AI_MODEL: 'SET_AI_MODEL',
+    SET_AI_PROVIDER: 'SET_AI_PROVIDER'
 };
 
 export const vibeReducer = (state, action) => {
@@ -43,6 +44,8 @@ export const vibeReducer = (state, action) => {
             return { ...state, location: action.payload };
         case ACTIONS.SET_AI_MODEL:
             return { ...state, aiModel: action.payload };
+        case ACTIONS.SET_AI_PROVIDER:
+            return { ...state, aiProvider: action.payload };
         case ACTIONS.SET_BUDGET:
             const newBudget = typeof action.payload === 'function' ? action.payload(state.budget) : action.payload;
             return { ...state, budget: newBudget };

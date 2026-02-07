@@ -1,14 +1,18 @@
 export const API_ENDPOINTS = {
-    GEMINI_BASE: "https://generativelanguage.googleapis.com/v1beta/models/"
+    GEMINI_BASE: "https://generativelanguage.googleapis.com/v1beta/models/",
+    OPENAI_COMPLETIONS: "https://api.openai.com/v1/chat/completions",
+    ANTHROPIC_MESSAGES: "https://api.anthropic.com/v1/messages"
+};
+
+export const AI_PROVIDERS = {
+    GOOGLE: 'google',
+    OPENAI: 'openai',
+    ANTHROPIC: 'anthropic'
 };
 
 export const GEMINI_MODELS = {
-    FLASH: "gemini-1.5-flash",
-    PRO: "gemini-1.5-pro",
     FLASH_2: "gemini-2.0-flash",
-    FLASH_LITE: "gemini-2.0-flash-lite-preview-02-05",
-    PRO_EXP: "gemini-2.0-pro-exp-02-05",
-    FLASH_8B: "gemini-1.5-flash-8b"
+    PRO_EXP: "gemini-2.0-pro-exp-02-05"
 };
 
 export const SYSTEM_PROMPTS = {

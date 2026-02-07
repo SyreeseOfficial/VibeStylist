@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useReducer, useMemo, useCallback } from 'react';
-import { DAILY_QUESTS, LOCAL_STORAGE_KEYS, GEMINI_MODELS } from '../utils/constants'; // Removed XP_REWARDS unused import if any
+import { DAILY_QUESTS, LOCAL_STORAGE_KEYS, GEMINI_MODELS, AI_PROVIDERS } from '../utils/constants'; // Removed XP_REWARDS unused import if any
 import confetti from 'canvas-confetti';
 import { playSound, SOUNDS } from '../utils/soundEffects';
 import { vibeReducer, ACTIONS } from './vibeReducer';
@@ -52,7 +52,8 @@ export const VibeProvider = ({ children }) => {
             inventory: load(LOCAL_STORAGE_KEYS.INVENTORY, []),
             outfitLogs: load(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, []),
             apiKey: load(LOCAL_STORAGE_KEYS.API_KEY, ''),
-            aiModel: load(LOCAL_STORAGE_KEYS.AI_MODEL || 'aiModel', GEMINI_MODELS.FLASH),
+            aiModel: load(LOCAL_STORAGE_KEYS.AI_MODEL || 'aiModel', GEMINI_MODELS.FLASH_2),
+            aiProvider: load('aiProvider', AI_PROVIDERS.GOOGLE),
             location: load(LOCAL_STORAGE_KEYS.LOCATION, ''),
             budget: load('vibe_budget', 0),
             dailyQuest: load(LOCAL_STORAGE_KEYS.DAILY_QUEST, {
@@ -74,6 +75,7 @@ export const VibeProvider = ({ children }) => {
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.OUTFIT_LOGS, JSON.stringify(state.outfitLogs)); }, [state.outfitLogs]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.API_KEY, JSON.stringify(state.apiKey)); }, [state.apiKey]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.AI_MODEL || 'aiModel', JSON.stringify(state.aiModel)); }, [state.aiModel]);
+    useEffect(() => { localStorage.setItem('aiProvider', JSON.stringify(state.aiProvider)); }, [state.aiProvider]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.LOCATION, JSON.stringify(state.location)); }, [state.location]);
     useEffect(() => { localStorage.setItem('vibe_budget', JSON.stringify(state.budget)); }, [state.budget]);
     useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEYS.DAILY_QUEST, JSON.stringify(state.dailyQuest)); }, [state.dailyQuest]);
@@ -165,6 +167,7 @@ export const VibeProvider = ({ children }) => {
             setOutfitLogs: (payload) => dispatch({ type: ACTIONS.SET_LOGS, payload }),
             setApiKey: (payload) => dispatch({ type: ACTIONS.SET_API_KEY, payload }),
             setAiModel: (payload) => dispatch({ type: ACTIONS.SET_AI_MODEL, payload }),
+            setAiProvider: (payload) => dispatch({ type: ACTIONS.SET_AI_PROVIDER, payload }),
             setLocation: (payload) => dispatch({ type: ACTIONS.SET_LOCATION, payload }),
             setBudget: (payload) => dispatch({ type: ACTIONS.SET_BUDGET, payload }),
             setChatMessages: (payload) => dispatch({ type: ACTIONS.SET_CHAT_MESSAGES, payload }),
@@ -185,7 +188,8 @@ export const VibeProvider = ({ children }) => {
                     inventory: [],
                     outfitLogs: [],
                     apiKey: '',
-                    aiModel: GEMINI_MODELS.FLASH,
+                    aiModel: GEMINI_MODELS.FLASH_2,
+                    aiProvider: AI_PROVIDERS.GOOGLE,
                     location: '',
                     budget: 0,
                     dailyQuest: { text: DAILY_QUESTS[0], isCompleted: false, date: new Date().toDateString() },
