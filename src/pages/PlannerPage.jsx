@@ -4,7 +4,7 @@ import useWeather from '../hooks/useWeather';
 import InventoryGrid from '../components/InventoryGrid';
 import InventoryItemCard from '../components/InventoryItemCard';
 import { Sparkles, Loader, Calendar, Plus, Trash2 } from 'lucide-react';
-// import { generateStyleAdvice } from '../utils/aiService'; 
+
 
 const PlannerPage = () => {
     // Debug logging
@@ -25,11 +25,11 @@ const PlannerPage = () => {
         return <div className="py-20 text-center text-red-400">Error: VibeContext unavailable.</div>;
     }
 
-    const pinnedItems = inventory.filter(item => tomorrowOutfit.includes(item.id));
+    const pinnedItems = inventory.filter(item => Array.isArray(tomorrowOutfit) && tomorrowOutfit.includes(item.id));
     const cleanInventory = inventory.filter(i => i.isClean);
 
     const handlePinSelected = () => {
-        const newItems = selectedForPlan.filter(id => !tomorrowOutfit.includes(id));
+        const newItems = selectedForPlan.filter(id => !Array.isArray(tomorrowOutfit) || !tomorrowOutfit.includes(id));
         if (setTomorrowOutfit) {
             setTomorrowOutfit(prev => [...prev, ...newItems]);
             setSelectedForPlan([]);

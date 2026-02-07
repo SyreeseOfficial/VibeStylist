@@ -48,7 +48,8 @@ export const vibeReducer = (state, action) => {
             const newMsgs = typeof action.payload === 'function' ? action.payload(state.chatMessages) : action.payload;
             return { ...state, chatMessages: newMsgs };
         case ACTIONS.SET_TOMORROW_OUTFIT:
-            return { ...state, tomorrowOutfit: action.payload };
+            const newOutfit = typeof action.payload === 'function' ? action.payload(state.tomorrowOutfit) : action.payload;
+            return { ...state, tomorrowOutfit: newOutfit };
         case ACTIONS.SET_WISHLIST:
             const newWishlist = typeof action.payload === 'function' ? action.payload(state.wishlist) : action.payload;
             return { ...state, wishlist: newWishlist };
