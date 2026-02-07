@@ -174,6 +174,7 @@ export const VibeProvider = ({ children }) => {
             addToWishlist: (item) => dispatch({ type: ACTIONS.ADD_TO_WISHLIST, payload: item }),
             removeFromWishlist: (id) => dispatch({ type: ACTIONS.REMOVE_FROM_WISHLIST, payload: id }),
             buyItem: (item) => dispatch({ type: ACTIONS.BUY_ITEM, payload: item }),
+            addItem: (item) => dispatch({ type: ACTIONS.ADD_ITEM, payload: item }),
 
             clearData: () => {
                 const defaults = {

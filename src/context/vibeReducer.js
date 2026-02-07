@@ -20,6 +20,7 @@ export const ACTIONS = {
     ADD_TO_WISHLIST: 'ADD_TO_WISHLIST',
     REMOVE_FROM_WISHLIST: 'REMOVE_FROM_WISHLIST',
     BUY_ITEM: 'BUY_ITEM',
+    ADD_ITEM: 'ADD_ITEM',
     CLEAR_DATA: 'CLEAR_DATA'
 };
 
@@ -183,10 +184,39 @@ export const vibeReducer = (state, action) => {
             return { ...state, inventory: newInv };
         }
 
+        case ACTIONS.ADD_ITEM: {
+            const newItem = action.payload;
+            return {
+                ...state,
+                inventory: [...state.inventory, newItem],
+                userProfile: {
+                    ...state.userProfile,
+                    xp: (state.userProfile.xp || 0) + XP_REWARDS.ADD_ITEM
+                },
+                _sideEffect: {
+                    type: 'ADD_ITEM_SUCCESS',
+                    xpEarned: XP_REWARDS.ADD_ITEM,
+                    source: "New Item Added"
+                }
+            };
+        }
+
         case ACTIONS.ADD_TO_WISHLIST: {
             const newItem = action.payload;
             if (state.wishlist.some(i => i.id === newItem.id)) return state;
-            return { ...state, wishlist: [...state.wishlist, newItem] };
+            return {
+                ...state,
+                wishlist: [...state.wishlist, newItem],
+                userProfile: {
+                    ...state.userProfile,
+                    xp: (state.userProfile.xp || 0) + XP_REWARDS.WISHLIST_ADD
+                },
+                _sideEffect: {
+                    type: 'WISHLIST_ADD_SUCCESS',
+                    xpEarned: XP_REWARDS.WISHLIST_ADD,
+                    source: "Added to Wishlist"
+                }
+            };
         }
 
         case ACTIONS.REMOVE_FROM_WISHLIST:
@@ -215,7 +245,16 @@ export const vibeReducer = (state, action) => {
                 ...state,
                 wishlist: newWishlist,
                 inventory: [...state.inventory, newItem],
-                budget: newBudget
+                budget: newBudget,
+                userProfile: {
+                    ...state.userProfile,
+                    xp: (state.userProfile.xp || 0) + XP_REWARDS.ADD_ITEM
+                },
+                _sideEffect: {
+                    type: 'BUY_ITEM_SUCCESS',
+                    xpEarned: XP_REWARDS.ADD_ITEM,
+                    source: "Item Purchased"
+                }
             };
         }
 

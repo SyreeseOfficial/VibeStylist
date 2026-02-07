@@ -6,7 +6,7 @@ import { XP_REWARDS } from '../utils/constants';
 import { toast } from 'sonner';
 
 const AddItemForm = ({ mode = 'inventory' }) => {
-    const { setInventory, addToWishlist, setUserProfile, userProfile } = useVibe();
+    const { addItem, addToWishlist } = useVibe();
     const [formData, setFormData] = useState({
         name: '',
         category: 'Top',
@@ -48,12 +48,7 @@ const AddItemForm = ({ mode = 'inventory' }) => {
             // Wishlist items might not need isClean or wearCount initially, but keeping structure is fine.
             addToWishlist(newItem);
         } else {
-            setInventory(prev => [...prev, newItem]);
-            // Award XP for adding item
-            setUserProfile({
-                ...userProfile,
-                xp: (userProfile.xp || 0) + XP_REWARDS.ADD_ITEM
-            });
+            addItem(newItem);
         }
 
         // Reset form and show success
