@@ -31,7 +31,8 @@ export const vibeReducer = (state, action) => {
     switch (action.type) {
         // --- Basic Setters ---
         case ACTIONS.SET_USER_PROFILE:
-            return { ...state, userProfile: { ...state.userProfile, ...action.payload } };
+            const newProfile = typeof action.payload === 'function' ? action.payload(state.userProfile) : { ...state.userProfile, ...action.payload };
+            return { ...state, userProfile: newProfile };
         case ACTIONS.SET_INVENTORY:
             // Allow payload to be a function for flexibility if needed, but usually just value
             const newInventory = typeof action.payload === 'function' ? action.payload(state.inventory) : action.payload;

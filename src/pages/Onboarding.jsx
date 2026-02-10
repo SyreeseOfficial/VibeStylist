@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useVibe } from '../context/VibeContext';
-import { ArrowRight, ArrowLeft, Check, User, Sliders, Save } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, User, Sliders, Save, AlertTriangle, Download, X } from 'lucide-react';
+import { SAMPLE_INVENTORY, SAMPLE_WISHLIST } from '../utils/sampleData';
+import { toast } from 'sonner';
 
 const Onboarding = () => {
     const navigate = useNavigate();
-    const { setUserProfile, setBudget } = useVibe();
+
+    const { userProfile, setUserProfile, setBudget, setInventory, setWishlist } = useVibe();
     const [step, setStep] = useState(1);
+    const [isCompleting, setIsCompleting] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         fitPreference: 50, // 0: Tight, 100: Loose
@@ -60,10 +65,24 @@ const Onboarding = () => {
     const handleBack = () => setStep(prev => prev - 1);
 
     const handleSave = () => {
+        setIsCompleting(true);
         setUserProfile(prev => ({ ...prev, ...formData }));
         setBudget(parseFloat(formData.budget) || 0);
-        navigate('/');
+        // Navigation will happen in useEffect once profile is updated
     };
+
+    const handleLoadSampleData = () => {
+        setInventory(SAMPLE_INVENTORY);
+        setWishlist(SAMPLE_WISHLIST);
+        toast.success("Sample wardrobe & wishlist loaded!");
+        handleNext(); // Auto advance to review
+    };
+
+    React.useEffect(() => {
+        if (isCompleting && userProfile?.name) {
+            navigate('/');
+        }
+    }, [userProfile, isCompleting, navigate]);
 
     return (
         <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
@@ -72,7 +91,7 @@ const Onboarding = () => {
                 <div className="bg-gray-700 h-2 w-full">
                     <div
                         className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                        style={{ width: `${(step / 10) * 100}%` }}
+                        style={{ width: `${(step / 11) * 100}%` }}
                     />
                 </div>
 
@@ -89,10 +108,11 @@ const Onboarding = () => {
                             {step === 7 && "Body Type"}
                             {step === 8 && "Viral Eras"}
                             {step === 9 && "Dealbreakers"}
-                            {step === 10 && "Review & Save"}
+                            {step === 10 && "Quick Start"}
+                            {step === 11 && "Review & Save"}
                         </h2>
                         <p className="text-gray-400 text-sm">
-                            Step {step} of 10
+                            Step {step} of 11
                         </p>
                     </div>
 
@@ -363,9 +383,55 @@ const Onboarding = () => {
                         </div>
                     )}
 
-                    {/* Step 10: Summary */}
+
+
+                    {/* Step 10: Sample Data Load */}
                     {step === 10 && (
                         <div className="space-y-6 animate-fadeIn">
+                            <div className="bg-gray-800 rounded-xl p-8 text-center border border-gray-700">
+                                <div className="w-16 h-16 bg-blue-600/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Download size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Load Sample Wardrobe?</h3>
+                                <p className="text-gray-300 mb-6">
+                                    Don't want to enter your clothes manually right now?
+                                    <br /><br />
+                                    We can load a <strong>pre-filled wardrobe</strong> (tops, bottoms, shoes) so you can test the AI styling features immediately. You can delete these items later.
+                                </p>
+
+                                <div className="grid grid-cols-1 gap-3">
+                                    <button
+                                        onClick={handleLoadSampleData}
+                                        className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-white transition flex items-center justify-center gap-2"
+                                    >
+                                        <Download size={20} /> Yes, Load Sample Data
+                                    </button>
+                                    <button
+                                        onClick={handleNext}
+                                        className="w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-xl font-medium text-gray-300 transition"
+                                    >
+                                        No, I'll add my own
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 11: Summary */}
+                    {step === 11 && (
+                        <div className="space-y-6 animate-fadeIn">
+                            {/* Work in Progress Warning */}
+                            <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-4 flex gap-3 text-yellow-200">
+                                <AlertTriangle className="shrink-0 text-yellow-500" />
+                                <div className="text-sm">
+                                    <h4 className="font-bold mb-1">Work in Progress</h4>
+                                    <p className="opacity-90">
+                                        This project is currently under active development. Some features (like API keys and chat) are experimental.
+                                        Feel free to explore and mess around!
+                                    </p>
+                                </div>
+                            </div>
+
                             <div className="bg-gray-900 rounded-xl p-6 border border-gray-700/50">
                                 <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-4">Profile Summary</h3>
 
@@ -437,14 +503,16 @@ const Onboarding = () => {
                             </button>
                         )}
 
-                        {step < 10 ? (
-                            <button
-                                onClick={handleNext}
-                                disabled={step === 1 && !formData.name.trim()}
-                                className="flex-1 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition flex items-center justify-center gap-2"
-                            >
-                                Next Step <ArrowRight size={18} />
-                            </button>
+                        {step < 11 ? (
+                            step !== 10 && (
+                                <button
+                                    onClick={handleNext}
+                                    disabled={step === 1 && !formData.name.trim()}
+                                    className="flex-1 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition flex items-center justify-center gap-2"
+                                >
+                                    Next Step <ArrowRight size={18} />
+                                </button>
+                            )
                         ) : (
                             <button
                                 onClick={handleSave}
@@ -456,7 +524,7 @@ const Onboarding = () => {
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
