@@ -1,9 +1,10 @@
+![VibeStylist Demo](public/gif.gif)
+
 # VibeStylist
 
 > [!NOTE]
 > 🚧 **Work in Progress**: This project is currently under active development. Features and UI are subject to change.
 
-![VibeStylist Demo](/gif.gif)
 
 ## 🌟 Overview
 
