@@ -1,16 +1,57 @@
-# React + Vite
+# VibeStylist
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> [!NOTE]
+> 🚧 **Work in Progress**: This project is currently under active development. Features and UI are subject to change.
 
-Currently, two official plugins are available:
+![VibeStylist Demo](/gif.gif)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 Overview
 
-## React Compiler
+VibeStylist is your personal AI fashion assistant, designed to help you curate your wardrobe, plan outfits, and discover your unique style.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔗 Live Links
+- **Live Preview:** [vibestylist.netlify.com](https://vibestylist.netlify.com)
+- **Developer Portfolio:** [syreese.com](https://syreese.com)
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Current Features
+- **AI Stylist Chat**: Chat with an AI to get outfit recommendations and style advice.
+- **Wardrobe Management**: Add and organize your clothes digitally.
+- **Outfit Planning**: Create and save outfit combinations.
+- **Wishlist**: Save items you want to buy.
+- **Style Interview**: A personality quiz to help the AI understand your style.
+
+### 🚀 Future Features
+- **Social Sharing**: Share your outfits with friends.
+- **Calendar Integration**: Plan outfits for specific dates.
+- **Virtual Try-On**: See how clothes look on you before buying (Experimental).
+- **Advanced Analytics**: Deeper insights into your wearing habits.
+
+## 🐛 Known Bugs
+
+We are aware of the following issues and are working to resolve them:
+- **API Key Issue**: Users can input their API key, but the chat functionality may not work as expected due to connection issues.
+- **Firefox Interview Loop**: The style interview may restart unexpectedly on Firefox browsers.
+
+## 🛠️ Installation & Usage
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/SyreeseOfficial/VibeStylist.git
+   cd VibeStylist
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
